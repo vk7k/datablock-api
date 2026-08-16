@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: uxc-block-manager
+    runtime: node
+    plan: starter
+    region: oregon
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: MAIL_FROM
+        value: UXC Manager <onboarding@resend.dev>
+      - key: FRONTEND_URL
+        sync: false

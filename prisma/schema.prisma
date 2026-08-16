@@ -1,0 +1,46 @@
+// Prisma Schema for Polymorphic Block Management System
+// Single Table Inheritance (STI) Model with Self-Referencing Blocks & JSON Payload
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                 String    @id @default(uuid()) @db.VarChar(36)
+  email              String    @unique @db.VarChar(255)
+  password_hash      String    @map("password_hash") @db.VarChar(255)
+  role               String    @default("user") @db.VarChar(50)
+  reset_token        String?   @map("reset_token") @db.VarChar(255)
+  reset_token_expiry DateTime? @map("reset_token_expiry")
+  created_at         DateTime  @default(now()) @map("created_at")
+  updated_at         DateTime  @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Block {
+  id         String    @id @default(uuid()) @db.VarChar(36)
+  parent_id  String?   @map("parent_id") @db.VarChar(36)
+  name       String    @db.VarChar(255)
+  start_date DateTime  @map("start_date")
+  end_date   DateTime  @map("end_date")
+  status     String    @default("pending") @db.VarChar(50)
+  type       String    @db.VarChar(50)
+  payload    Json?     @db.Json
+  created_at DateTime  @default(now()) @map("created_at")
+  updated_at DateTime  @updatedAt @map("updated_at")
+
+  // Self-referencing relationship with Cascade deletion
+  parent   Block?  @relation("BlockHierarchy", fields: [parent_id], references: [id], onDelete: Cascade)
+  children Block[] @relation("BlockHierarchy")
+
+  @@index([parent_id])
+  @@index([type])
+  @@index([status])
+  @@map("blocks")
+}
