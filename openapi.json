@@ -1,0 +1,1082 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "DataBlock API - Polymorphic Block Management",
+    "version": "1.0.0",
+    "description": "High-performance RESTful API backend for hierarchical polymorphic block management, \nGantt chart visualization, and single-table inheritance (STI) data structures.\n",
+    "contact": {
+      "name": "UXC Engineering",
+      "email": "dev@uxcribe.com"
+    },
+    "license": {
+      "name": "ISC"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local Development Server"
+    },
+    {
+      "url": "https://datablock-api.onrender.com",
+      "description": "Production Server (Render.com)"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Health",
+      "description": "Service health and liveness checks"
+    },
+    {
+      "name": "Auth",
+      "description": "User registration, login, and password management"
+    },
+    {
+      "name": "Users",
+      "description": "User profile and account management"
+    },
+    {
+      "name": "Blocks",
+      "description": "Polymorphic Single Table Inheritance (STI) block hierarchy operations"
+    }
+  ],
+  "paths": {
+    "/api/health": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Health Check",
+        "description": "Returns the health status, uptime, and version of the API.",
+        "responses": {
+          "200": {
+            "description": "Service is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Register a new user",
+        "description": "Creates a new user account with hashed password and returns an auth token.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User registered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "409": {
+            "$ref": "#/components/responses/ConflictError"
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "User login",
+        "description": "Authenticates user credentials and returns a signed JWT Bearer token.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
+    "/api/auth/forgot-password": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Request password reset token",
+        "description": "Generates a temporary reset token and sends an email via Resend or SMTP.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password reset email dispatched (or logged in dev mode)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      }
+    },
+    "/api/auth/reset-password": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Reset password with token",
+        "description": "Validates the reset token and updates the user's password.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password reset successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/api/users/me": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get current authenticated user",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current user profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Update current user profile",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfileRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
+    "/api/blocks/tree": {
+      "get": {
+        "tags": [
+          "Blocks"
+        ],
+        "summary": "Get hierarchical block tree (O(N) Gantt structure)",
+        "description": "Returns an array of root-level blocks with their nested children recursively populated for Gantt charts or tree grids.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Hierarchical block tree",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlockTreeResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
+    "/api/blocks": {
+      "get": {
+        "tags": [
+          "Blocks"
+        ],
+        "summary": "Get flat list of blocks with optional filters",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "type",
+            "schema": {
+              "type": "string",
+              "example": "TASK"
+            },
+            "description": "Filter blocks by entity type (e.g. PROJECT, STAGE, TASK, ASSET, CONTRACT)"
+          },
+          {
+            "in": "query",
+            "name": "parent_id",
+            "schema": {
+              "type": "string",
+              "example": "e2a7b8e1-55bb-42c2-b52f-1014a5118742"
+            },
+            "description": "Filter by parent UUID, or 'null'/'root' for root blocks"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "example": "in_progress"
+            },
+            "description": "Filter by status (e.g. pending, in_progress, completed, cancelled)"
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string",
+              "example": "Architecture"
+            },
+            "description": "Search by substring match in block name"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Filtered list of blocks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlockListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Blocks"
+        ],
+        "summary": "Create a new block",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBlockRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Block created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SingleBlockResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
+    "/api/blocks/{id}": {
+      "get": {
+        "tags": [
+          "Blocks"
+        ],
+        "summary": "Get single block by ID",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Block details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SingleBlockResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Blocks"
+        ],
+        "summary": "Update block (with shallow JSON payload merging)",
+        "description": "Updates block fields. Any properties provided in `payload` are merged into the existing JSON object.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBlockRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Block updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SingleBlockResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Blocks"
+        ],
+        "summary": "Delete block (with recursive cascade)",
+        "description": "Deletes the block and all child blocks referencing it recursively.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Block deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Enter your JWT Bearer token obtained from `/api/auth/login` or `/api/auth/register`."
+      }
+    },
+    "responses": {
+      "UnauthorizedError": {
+        "description": "Authentication failed or token is missing/invalid",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "success": false,
+              "message": "Access denied. No Bearer token provided."
+            }
+          }
+        }
+      },
+      "ValidationError": {
+        "description": "Request body validation failed",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "success": false,
+              "message": "Validation failed",
+              "errors": [
+                {
+                  "path": "email",
+                  "message": "Invalid email format"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "NotFoundError": {
+        "description": "Requested resource was not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "success": false,
+              "message": "Block not found"
+            }
+          }
+        }
+      },
+      "ConflictError": {
+        "description": "Resource conflict (e.g. email already exists)",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "success": false,
+              "message": "Email already registered"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "StandardResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Operation completed successfully"
+          },
+          "data": {
+            "type": "object",
+            "nullable": true
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "message": {
+            "type": "string",
+            "example": "An error occurred"
+          },
+          "errors": {
+            "type": "object",
+            "nullable": true
+          }
+        }
+      },
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "API is up and running"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "example": "healthy"
+              },
+              "timestamp": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "uptime": {
+                "type": "number",
+                "example": 45.2
+              },
+              "version": {
+                "type": "string",
+                "example": "1.0.0"
+              }
+            }
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "7bf3b3c4-406a-4d29-b68a-6695328905fe"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "admin@uxcribe.com"
+          },
+          "role": {
+            "type": "string",
+            "example": "admin"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "developer@uxcribe.com"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "minLength": 8,
+            "example": "Password123!"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "user",
+              "admin"
+            ],
+            "default": "user",
+            "example": "user"
+          }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "admin@uxcribe.com"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "example": "AdminPass123!"
+          }
+        }
+      },
+      "ForgotPasswordRequest": {
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "developer@uxcribe.com"
+          }
+        }
+      },
+      "ResetPasswordRequest": {
+        "type": "object",
+        "required": [
+          "token",
+          "password"
+        ],
+        "properties": {
+          "token": {
+            "type": "string",
+            "example": "49bf5b27e8d2543029cf05b..."
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "minLength": 8,
+            "example": "NewPassword123!"
+          }
+        }
+      },
+      "UpdateProfileRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "developer.new@uxcribe.com"
+          }
+        }
+      },
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Login successful"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "user": {
+                "$ref": "#/components/schemas/User"
+              },
+              "token": {
+                "type": "string",
+                "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+              }
+            }
+          }
+        }
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "User profile retrieved successfully"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "user": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        }
+      },
+      "Block": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "e2a7b8e1-55bb-42c2-b52f-1014a5118742"
+          },
+          "parent_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "example": null
+          },
+          "name": {
+            "type": "string",
+            "example": "Enterprise Cloud Platform Redesign"
+          },
+          "type": {
+            "type": "string",
+            "example": "PROJECT"
+          },
+          "status": {
+            "type": "string",
+            "example": "in_progress"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-09-01T00:00:00.000Z"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-11-30T00:00:00.000Z"
+          },
+          "payload": {
+            "type": "object",
+            "nullable": true,
+            "description": "Dynamic polymorphic JSON payload with metadata, Gantt coordinates, custom fields, etc.",
+            "example": {
+              "budget": 150000,
+              "client": "Acme Corp",
+              "manager": "Sarah Jenkins",
+              "priority": "HIGH",
+              "gantt": {
+                "color": "#3b82f6",
+                "criticalPath": true
+              }
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "BlockTreeItem": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Block"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "children": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/BlockTreeItem"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "CreateBlockRequest": {
+        "type": "object",
+        "required": [
+          "name",
+          "type",
+          "start_date",
+          "end_date"
+        ],
+        "properties": {
+          "parent_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "example": "a90b4d45-64d8-4f18-a681-35b91b8a9134"
+          },
+          "name": {
+            "type": "string",
+            "example": "Build Gantt Chart Visualization Components"
+          },
+          "type": {
+            "type": "string",
+            "example": "TASK"
+          },
+          "status": {
+            "type": "string",
+            "default": "pending",
+            "example": "in_progress"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-09-16T00:00:00.000Z"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-09-30T00:00:00.000Z"
+          },
+          "payload": {
+            "type": "object",
+            "nullable": true,
+            "example": {
+              "assignee": "David Kim",
+              "storyPoints": 13,
+              "progress": 60,
+              "tags": [
+                "Frontend",
+                "React",
+                "Gantt"
+              ]
+            }
+          }
+        }
+      },
+      "UpdateBlockRequest": {
+        "type": "object",
+        "properties": {
+          "parent_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "example": "Updated Task Title"
+          },
+          "type": {
+            "type": "string",
+            "example": "TASK"
+          },
+          "status": {
+            "type": "string",
+            "example": "completed"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {
+            "type": "object",
+            "nullable": true,
+            "description": "Shallow merged with existing payload data",
+            "example": {
+              "progress": 100,
+              "completedAt": "2026-09-30T12:00:00.000Z"
+            }
+          }
+        }
+      },
+      "SingleBlockResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Block operation successful"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Block"
+          }
+        }
+      },
+      "BlockListResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Blocks retrieved successfully"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Block"
+            }
+          }
+        }
+      },
+      "BlockTreeResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Hierarchical block tree retrieved successfully"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BlockTreeItem"
+            }
+          }
+        }
+      }
+    }
+  }
+}

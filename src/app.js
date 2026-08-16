@@ -36,14 +36,38 @@ if (env.NODE_ENV !== 'test') {
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+const path = require('path');
+const swaggerUi = require('swagger-ui-express');
+const YAML = require('yamljs');
+
+// Load OpenAPI Specification
+const openApiSpecPath = path.join(__dirname, '../openapi.yaml');
+let swaggerDocument;
+try {
+  swaggerDocument = YAML.load(openApiSpecPath);
+} catch (err) {
+  console.warn('[Swagger] Could not load openapi.yaml:', err.message);
+}
+
 // Base Welcome Route
 app.get('/', (req, res) => {
   res.json({
     message: 'Welcome to Polymorphic Block Management API',
-    docs: '/api/health',
+    docs: '/api/docs',
+    health: '/api/health',
     version: '1.0.0',
   });
 });
+
+// Swagger UI & OpenAPI Specification Endpoints
+if (swaggerDocument) {
+  app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, {
+    customSiteTitle: 'DataBlock API Documentation (Swagger)',
+  }));
+  app.get('/api/docs/openapi.json', (req, res) => res.json(swaggerDocument));
+  app.get('/openapi.json', (req, res) => res.json(swaggerDocument));
+  app.get('/openapi.yaml', (req, res) => res.sendFile(openApiSpecPath));
+}
 
 // API Routes Mounting
 app.use('/api', apiRoutes);
