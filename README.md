@@ -35,7 +35,8 @@ The core architecture utilizes **Single Table Inheritance (STI)** with a self-re
   - Strict schema validations via **Zod** middleware.
   - Centralized error handler with standardized JSON response envelopes.
 - **Cloud-Ready for Render.com**:
-  - Pre-configured `render.yaml` blueprint with build hooks and automated Prisma schema generation.
+  - Automated schema migration with `npx prisma db push` during build.
+  - Pre-configured `render.yaml` blueprint with environment variable definitions.
 
 ---
 
@@ -144,11 +145,11 @@ cp .env.example .env
 | `NODE_ENV` | Environment mode (`development` / `production`) | `development` |
 | `APP_URL` | Base server URL | `http://localhost:3000` |
 | `FRONTEND_URL` | Allowed client URL for CORS & password reset links | `http://localhost:5173` |
-| `DATABASE_URL` | MySQL Connection URI | `mysql://root:@localhost:3306/block_system` |
+| `DATABASE_URL` | MySQL Connection URI (requires SSL parameter for cloud DBs) | `mysql://user:pass@host:3306/db?sslaccept=strict` |
 | `JWT_SECRET` | Secret key for JWT signing | `super_secret_jwt_key_here` |
 | `JWT_EXPIRES_IN` | JWT token validity window | `7d` |
 | `RESEND_API_KEY` | *(Optional)* Resend API Key for transactional emails | `re_123456789...` |
-| `MAIL_FROM` | Default sender email address | `UXC Manager <noreply@yourdomain.com>` |
+| `MAIL_FROM` | Default sender email address | `UXC Manager <onboarding@resend.dev>` |
 | `SMTP_HOST` | *(Optional)* Generic SMTP host fallback | `smtp.mailgun.org` |
 | `SMTP_PORT` | *(Optional)* Generic SMTP port fallback | `587` |
 | `SMTP_USER` | *(Optional)* Generic SMTP username | `user@domain.com` |
@@ -385,21 +386,75 @@ All responses are wrapped in a standard response envelope:
 
 ---
 
-## ☁️ Deployment on Render.com
+## ☁️ Guía de Despliegue en Render.com
 
-This repository includes a [`render.yaml`](render.yaml) specification:
+Sigue estos pasos detallados para desplegar la API en **Render.com**:
 
-1. Push your code to GitHub / GitLab.
-2. Navigate to [Render Dashboard](https://dashboard.render.com/) -> **New** -> **Blueprint**.
-3. Select this repository.
-4. Provide the required production environment variables:
-   - `DATABASE_URL`: Hosted MySQL connection string (e.g. Aiven, PlanetScale, AWS RDS, Render MySQL).
-   - `JWT_SECRET`: Secure cryptographic string.
-   - `RESEND_API_KEY`: API Key from [Resend](https://resend.com/).
-   - `FRONTEND_URL`: Client frontend URL.
+### 1. Crear el Web Service
+1. En el [Dashboard de Render](https://dashboard.render.com/), haz clic en **New +** y selecciona **Web Service**.
+2. Conecta tu repositorio de GitHub: `vk7k/datablock-api`.
+3. Configura los parámetros básicos del servicio:
+   - **Name**: `datablock-api` (o el nombre de tu preferencia)
+   - **Language**: `Node`
+   - **Branch**: `main`
+   - **Region**: `Oregon (US West)` (o la más cercana a tu base de datos)
+   - **Instance Type**: `Free` ($0/mo) o `Starter`
+
+### 2. Configurar Comandos de Build y Start
+- **Build Command**:
+  ```bash
+  npm install && npx prisma generate && npx prisma db push
+  ```
+  *(Este comando instala dependencias, compila el cliente de Prisma y **crea automáticamente todas las tablas e índices** en tu base de datos remota sin necesidad de migraciones manuales).*
+
+- **Start Command**:
+  ```bash
+  npm start
+  ```
 
 ---
 
-## 📜 License
+### 3. Configuración de Variables de Entorno (Environment Variables)
 
-This project is licensed under the [ISC License](LICENSE).
+En la sección **Environment Variables** de Render, añade los siguientes valores:
+
+| Variable | Valor / Ejemplo | Obligatorio | Notas |
+| :--- | :--- | :---: | :--- |
+| `NODE_ENV` | `production` | Sí | Activa optimizaciones de producción |
+| `DATABASE_URL` | `mysql://USER:PASS@HOST:PORT/DB?sslaccept=strict` | **Sí** | **Requiere `?sslaccept=strict` al final** (ver detalle abajo) |
+| `JWT_SECRET` | *(Cadena aleatoria y segura)* | Sí | Clave criptográfica para firmar JWTs |
+| `JWT_EXPIRES_IN` | `7d` | No | Tiempo de expiración del token (por defecto: `7d`) |
+| `RESEND_API_KEY` | `re_123456789abcdef...` | Opcional | API Key de [Resend.com](https://resend.com/api-keys) para emails |
+| `MAIL_FROM` | `UXC Manager <onboarding@resend.dev>` | Opcional | Remitente de emails (ver detalle abajo) |
+| `FRONTEND_URL` | `https://tu-app-frontend.com` | No | Origen permitido para CORS y enlaces de recuperación |
+
+---
+
+### ⚠️ Notas Críticas de Configuración para este Stack
+
+#### 1. Formato de `DATABASE_URL` con SSL en la Nube
+> [!IMPORTANT]
+> Los proveedores de MySQL en la nube (como Aiven, PlanetScale, AWS RDS, TiDB, Render MySQL) exigen conexiones cifradas mediante SSL/TLS.
+> 
+> Si tu cadena de conexión no incluye el parámetro SSL al final, Prisma arrojará el error `P1001: Can't reach database server` o fallará el handshake SSL.
+> 
+> **Formato correcto:**
+> ```env
+> DATABASE_URL="mysql://usuario:contraseña@servidor.com:3306/nombre_db?sslaccept=strict"
+> ```
+
+#### 2. Configuración del Servicio de Correo con Resend (`RESEND_API_KEY`)
+> [!TIP]
+> - **Para pruebas y desarrollo rápido:** Si aún no has verificado un dominio propio en Resend, utiliza el remitente de pruebas de Resend:
+>   ```env
+>   MAIL_FROM="UXC Manager <onboarding@resend.dev>"
+>   ```
+>   *(Ten en cuenta que en modo `onboarding@resend.dev`, Resend solo permite enviar emails a la dirección de correo con la que creaste tu cuenta en Resend).*
+> - **Para producción:** Una vez verificado tu dominio en [resend.com/domains](https://resend.com/domains), cambia el `MAIL_FROM` a tu dominio propio (ej. `UXC Manager <soporte@tudominio.com>`).
+> - **Modo Resiliente (Sin API Key):** Si no configuras `RESEND_API_KEY`, el servidor continuará funcionando con normalidad; en lugar de fallar, registrará el contenido del email formateado directamente en la consola/logs de Render.
+
+---
+
+## 📜 Licencia
+
+Este proyecto está bajo la Licencia [ISC](LICENSE).
