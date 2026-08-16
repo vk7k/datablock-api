@@ -5,7 +5,7 @@ class BlockService {
   /**
    * Retrieve a flat list of blocks with optional filters
    */
-  async getBlocks({ type, parent_id, status, search } = {}) {
+  async getBlocks({ type, parent_id, status, schema_version, search } = {}) {
     const where = {};
 
     if (type) {
@@ -22,6 +22,10 @@ class BlockService {
 
     if (status) {
       where.status = status;
+    }
+
+    if (schema_version !== undefined) {
+      where.schema_version = Number(schema_version);
     }
 
     if (search) {
@@ -81,7 +85,7 @@ class BlockService {
   /**
    * Create a new polymorphic block
    */
-  async createBlock({ parent_id, name, start_date, end_date, status = 'pending', type, payload = null }) {
+  async createBlock({ parent_id, name, start_date, end_date, status = 'pending', type, schema_version = 1, payload = null }) {
     // If parent_id is specified, verify that parent block exists
     if (parent_id) {
       const parentExists = await prisma.block.findUnique({
@@ -103,6 +107,7 @@ class BlockService {
         end_date: new Date(end_date),
         status: status || 'pending',
         type,
+        schema_version: schema_version ? Number(schema_version) : 1,
         payload: payload || null,
       },
     });
@@ -151,6 +156,7 @@ class BlockService {
     if (updateData.end_date !== undefined) data.end_date = new Date(updateData.end_date);
     if (updateData.status !== undefined) data.status = updateData.status;
     if (updateData.type !== undefined) data.type = updateData.type;
+    if (updateData.schema_version !== undefined) data.schema_version = Number(updateData.schema_version);
     if (updateData.parent_id !== undefined) data.parent_id = updateData.parent_id;
 
     // Merge JSON payload if updating payload

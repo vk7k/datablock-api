@@ -11,6 +11,7 @@ const createBlockSchema = z.object({
   end_date: dateValidation,
   status: z.string().min(1).default('pending'),
   type: z.string().min(1, 'Type is required (e.g. PROJECT, STAGE, TASK, ASSET, CONTRACT)'),
+  schema_version: z.number().int().positive().default(1),
   payload: z.record(z.any()).nullable().optional(),
 }).refine((data) => {
   const start = new Date(data.start_date);
@@ -28,6 +29,7 @@ const updateBlockSchema = z.object({
   end_date: dateValidation.optional(),
   status: z.string().min(1).optional(),
   type: z.string().min(1).optional(),
+  schema_version: z.number().int().positive().optional(),
   payload: z.record(z.any()).nullable().optional(),
 }).refine((data) => {
   if (data.start_date && data.end_date) {
@@ -45,6 +47,7 @@ const blockQuerySchema = z.object({
   type: z.string().optional(),
   parent_id: z.string().optional(),
   status: z.string().optional(),
+  schema_version: z.coerce.number().int().positive().optional(),
   search: z.string().optional(),
 });
 

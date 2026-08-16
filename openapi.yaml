@@ -221,6 +221,13 @@ paths:
             example: in_progress
           description: Filter by status (e.g. pending, in_progress, completed, cancelled)
         - in: query
+          name: schema_version
+          schema:
+            type: integer
+            default: 1
+            example: 1
+          description: Filter by schema version
+        - in: query
           name: search
           schema:
             type: string
@@ -594,6 +601,11 @@ components:
         status:
           type: string
           example: "in_progress"
+        schema_version:
+          type: integer
+          default: 1
+          example: 1
+          description: Version of the polymorphic block schema / payload format
         start_date:
           type: string
           format: date-time
@@ -654,6 +666,11 @@ components:
           type: string
           default: "pending"
           example: "in_progress"
+        schema_version:
+          type: integer
+          default: 1
+          example: 1
+          description: Schema version for the block
         start_date:
           type: string
           format: date-time
@@ -687,6 +704,9 @@ components:
         status:
           type: string
           example: "completed"
+        schema_version:
+          type: integer
+          example: 2
         start_date:
           type: string
           format: date-time

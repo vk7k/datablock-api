@@ -108,16 +108,17 @@ model User {
 }
 
 model Block {
-  id         String    @id @default(uuid()) @db.VarChar(36)
-  parent_id  String?   @map("parent_id") @db.VarChar(36)
-  name       String    @db.VarChar(255)
-  start_date DateTime  @map("start_date")
-  end_date   DateTime  @map("end_date")
-  status     String    @default("pending") @db.VarChar(50)
-  type       String    @db.VarChar(50)
-  payload    Json?     @db.Json
-  created_at DateTime  @default(now()) @map("created_at")
-  updated_at DateTime  @updatedAt @map("updated_at")
+  id             String    @id @default(uuid()) @db.VarChar(36)
+  parent_id      String?   @map("parent_id") @db.VarChar(36)
+  name           String    @db.VarChar(255)
+  start_date     DateTime  @map("start_date")
+  end_date       DateTime  @map("end_date")
+  status         String    @default("pending") @db.VarChar(50)
+  type           String    @db.VarChar(50)
+  schema_version Int       @default(1) @map("schema_version")
+  payload        Json?     @db.Json
+  created_at     DateTime  @default(now()) @map("created_at")
+  updated_at     DateTime  @updatedAt @map("updated_at")
 
   parent   Block?  @relation("BlockHierarchy", fields: [parent_id], references: [id], onDelete: Cascade)
   children Block[] @relation("BlockHierarchy")
@@ -125,6 +126,7 @@ model Block {
   @@index([parent_id])
   @@index([type])
   @@index([status])
+  @@index([schema_version])
   @@map("blocks")
 }
 ```
@@ -338,12 +340,13 @@ All responses are wrapped in a standard response envelope:
 ```
 
 #### 📋 List Blocks (Flat & Filterable)
-`GET /api/blocks?type=TASK&status=in_progress&search=Migration`
+`GET /api/blocks?type=TASK&status=in_progress&schema_version=1&search=Migration`
 
 **Query Parameters:**
 - `type`: Filter by entity type (e.g. `PROJECT`, `STAGE`, `TASK`, `ASSET`)
 - `parent_id`: Filter by parent ID or `null` for root blocks
 - `status`: Filter by status (e.g. `pending`, `in_progress`, `completed`)
+- `schema_version`: Filter by schema version number (e.g. `1`, `2`)
 - `search`: Case-insensitive search on block `name`
 
 #### 🔍 Get Single Block
@@ -357,6 +360,7 @@ All responses are wrapped in a standard response envelope:
   "name": "Security Audit & Pen Testing",
   "type": "TASK",
   "status": "pending",
+  "schema_version": 1,
   "start_date": "2026-10-01T00:00:00.000Z",
   "end_date": "2026-10-15T00:00:00.000Z",
   "payload": {
@@ -372,6 +376,7 @@ All responses are wrapped in a standard response envelope:
 ```json
 {
   "status": "in_progress",
+  "schema_version": 1,
   "payload": {
     "progress": 50,
     "lastNote": "Initial scanning complete"
