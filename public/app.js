@@ -552,11 +552,11 @@ function renderTypesView() {
         html += `
           <div class="type-card">
             <div class="type-card-header">
-              <span class="badge ${badgeTypeClass}">${s.key}</span>
-              <span style="font-size: 0.7rem; font-family: var(--font-mono); color: var(--text-muted);">${s.filename}</span>
-            </div>
-            <div>
-              <strong>${escapeHtml(s.type)}</strong> <span class="badge-version">v${s.version}</span>
+              <div style="display: flex; align-items: center; gap: 0.35rem;">
+                <span class="badge ${badgeTypeClass}">${escapeHtml(s.type)}</span>
+                <span class="badge-version">v${s.version}</span>
+              </div>
+              <span style="font-size: 0.68rem; font-family: var(--font-mono); color: var(--text-muted);">${escapeHtml(s.filename)}</span>
             </div>
             <div class="type-card-template">
               <pre><code>${escapeHtml(JSON.stringify(s.template || {}, null, 2))}</code></pre>
