@@ -635,6 +635,81 @@ dialog::backdrop {
   background: rgba(15, 23, 42, 0.4);
 }
 
+/* Payload Table Editor (Structured Schema Values) */
+.payload-table-wrapper {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  max-height: 280px;
+  overflow-y: auto;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.payload-editor-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.payload-editor-table th {
+  background: rgba(15, 23, 42, 0.85);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.payload-editor-table td {
+  padding: 0.45rem 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  vertical-align: middle;
+}
+
+.payload-editor-table tr:last-child td {
+  border-bottom: none;
+}
+
+.payload-prop-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.payload-prop-key {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #38bdf8;
+}
+
+.payload-prop-type {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.payload-field-input {
+  font-size: 0.8rem;
+  padding: 0.35rem 0.55rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  width: 100%;
+  font-family: inherit;
+  transition: border-color var(--transition-fast);
+}
+
+.payload-field-input:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+}
+
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;

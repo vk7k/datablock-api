@@ -49,7 +49,7 @@
       <div class="action-bar" id="blocksActionBar">
         <div class="action-bar-title">
           <h1>Universal DataBlock Studio</h1>
-          <p>Nodos polimórficos universales con esquemas dinámicos basados en archivos.</p>
+          <p>Gestor universal de bloques con esquemas estructurados basados en archivos.</p>
         </div>
         <div class="action-buttons">
           <button class="btn btn-secondary" onclick="toggleExpandAllTree()" id="expandAllBtn" title="Expandir/Contraer Todo">
@@ -98,7 +98,7 @@
   <!-- Modal 1: Create / Edit Block -->
   <dialog id="blockModal">
     <div class="modal-header">
-      <h2 id="blockModalTitle">➕ Bloque Polimórfico</h2>
+      <h2 id="blockModalTitle">➕ Bloque</h2>
       <button class="btn btn-secondary btn-sm" data-close-dialog type="button">✕</button>
     </div>
     <form id="blockForm">
@@ -117,16 +117,15 @@
         <div class="form-group">
           <label for="blockType">🏷️ Tipo y Versión de Payload (schemas/) *:</label>
           <select id="blockType" class="select-control" required></select>
-          <span class="form-help">Al cambiar de opción, se inyecta automáticamente la plantilla oficial de schemas/ correspondiente.</span>
+          <span class="form-help">Al cambiar de opción, se inyectan automáticamente las propiedades del esquema oficial.</span>
         </div>
 
         <div class="form-group">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <label for="blockPayload">📦 Atributos del Dominio (JSON Payload) *:</label>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="formatPayloadTextarea()">Format JSON</button>
+          <label>📦 Atributos del Documento (Valores del Payload):</label>
+          <div class="payload-table-wrapper" id="payloadTableContainer">
+            <!-- Dynamically rendered table of schema properties -->
           </div>
-          <textarea id="blockPayload" class="form-control" rows="8" placeholder="{}"></textarea>
-          <span class="form-help">Estructura JSON con todos los atributos específicos (name, status, dates, stats, config, etc.). Al editar, se fusionan los campos.</span>
+          <span class="form-help">La estructura y campos están fijados por el esquema oficial. Edita los valores correspondientes.</span>
         </div>
       </div>
       <div class="modal-footer">
@@ -224,12 +223,12 @@
   <!-- Modal 5: Sample Domain Templates -->
   <dialog id="samplesModal">
     <div class="modal-header">
-      <h2>🌱 Cargar Jerarquías Polimórficas de Ejemplo</h2>
+      <h2>🌱 Cargar Jerarquías de Ejemplo</h2>
       <button class="btn btn-secondary btn-sm" data-close-dialog type="button">✕</button>
     </div>
     <div class="modal-body">
       <p style="color: var(--text-secondary); font-size: 0.85rem;">
-        Selecciona un dominio para crear una estructura completa de bloques polimórficos reales en tu base de datos y experimentar su flexibilidad:
+        Selecciona un dominio para crear una estructura completa de bloques reales en tu base de datos y experimentar su flexibilidad:
       </p>
 
       <div style="display: flex; flex-direction: column; gap: 0.85rem; margin-top: 0.5rem;">

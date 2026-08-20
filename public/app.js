@@ -1502,33 +1502,155 @@ function populateTypeSelects() {
   }
 }
 
+// ==========================================
+// Payload Table Editor (Schema-Conforming)
+// ==========================================
+function renderPayloadTable(templateObj = {}, valuesObj = {}) {
+  const container = document.getElementById('payloadTableContainer');
+  if (!container) return;
+
+  if (!templateObj || typeof templateObj !== 'object' || Object.keys(templateObj).length === 0) {
+    container.innerHTML = '<p style="padding: 1rem; color: var(--text-muted); font-size: 0.8rem;">Este esquema no define propiedades fijas.</p>';
+    return;
+  }
+
+  // Combine keys from templateObj and any extra values in valuesObj
+  const allKeys = [...new Set([...Object.keys(templateObj), ...Object.keys(valuesObj || {})])];
+
+  let html = `
+    <table class="payload-editor-table">
+      <thead>
+        <tr>
+          <th style="width: 38%;">Propiedad (Esquema)</th>
+          <th style="width: 62%;">Valor</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  allKeys.forEach(key => {
+    const defaultVal = templateObj[key];
+    const currentVal = (valuesObj && valuesObj[key] !== undefined) ? valuesObj[key] : defaultVal;
+    
+    // Detect type
+    let type = typeof defaultVal;
+    if (defaultVal === null && currentVal !== null) type = typeof currentVal;
+    if (Array.isArray(defaultVal) || Array.isArray(currentVal)) type = 'array';
+    if (type === 'object' && !Array.isArray(defaultVal) && defaultVal !== null) type = 'object';
+
+    html += `
+      <tr>
+        <td>
+          <div class="payload-prop-cell">
+            <span class="payload-prop-key">${escapeHtml(key)}</span>
+            <span class="payload-prop-type">${type}</span>
+          </div>
+        </td>
+        <td>
+    `;
+
+    if (key === 'status') {
+      const statusOptions = ['pending', 'in_progress', 'completed', 'cancelled', 'active', 'approved', 'applied'];
+      const statusVal = String(currentVal || 'pending');
+      html += `
+        <select class="select-control payload-field-input payload-field" data-key="${escapeHtml(key)}" data-type="string">
+      `;
+      const optionsSet = new Set(statusOptions);
+      if (statusVal && !optionsSet.has(statusVal)) {
+        optionsSet.add(statusVal);
+      }
+      optionsSet.forEach(opt => {
+        html += `<option value="${escapeHtml(opt)}" ${statusVal === opt ? 'selected' : ''}>${escapeHtml(opt)}</option>`;
+      });
+      html += `</select>`;
+    } else if (type === 'boolean') {
+      const boolVal = currentVal === true || currentVal === 'true';
+      html += `
+        <select class="select-control payload-field-input payload-field" data-key="${escapeHtml(key)}" data-type="boolean">
+          <option value="true" ${boolVal ? 'selected' : ''}>true (Sí / Verdadero)</option>
+          <option value="false" ${!boolVal ? 'selected' : ''}>false (No / Falso)</option>
+        </select>
+      `;
+    } else if (type === 'number') {
+      html += `
+        <input type="number" step="any" class="payload-field-input payload-field" data-key="${escapeHtml(key)}" data-type="number" value="${currentVal !== undefined && currentVal !== null ? currentVal : 0}">
+      `;
+    } else if (type === 'array' || type === 'object') {
+      const jsonStr = typeof currentVal === 'object' ? JSON.stringify(currentVal) : String(currentVal || '');
+      html += `
+        <input type="text" class="payload-field-input payload-field" data-key="${escapeHtml(key)}" data-type="${type}" value="${escapeHtml(jsonStr)}" placeholder="${type === 'array' ? '[\"elem1\", \"elem2\"]' : '{\"key\": \"val\"}'}">
+      `;
+    } else {
+      // String / Date
+      html += `
+        <input type="text" class="payload-field-input payload-field" data-key="${escapeHtml(key)}" data-type="string" value="${escapeHtml(String(currentVal !== undefined && currentVal !== null ? currentVal : ''))}">
+      `;
+    }
+
+    html += `</td></tr>`;
+  });
+
+  html += `</tbody></table>`;
+  container.innerHTML = html;
+}
+
+function getPayloadFromTable() {
+  const container = document.getElementById('payloadTableContainer');
+  if (!container) return {};
+
+  const fields = container.querySelectorAll('.payload-field');
+  const payload = {};
+
+  fields.forEach(field => {
+    const key = field.dataset.key;
+    const type = field.dataset.type;
+    const rawVal = field.value;
+
+    if (!key) return;
+
+    if (type === 'number') {
+      const num = parseFloat(rawVal);
+      payload[key] = isNaN(num) ? 0 : num;
+    } else if (type === 'boolean') {
+      payload[key] = rawVal === 'true';
+    } else if (type === 'array' || type === 'object') {
+      try {
+        payload[key] = JSON.parse(rawVal);
+      } catch {
+        payload[key] = rawVal;
+      }
+    } else {
+      payload[key] = rawVal;
+    }
+  });
+
+  return payload;
+}
+
 function handleTypeChange(force = true) {
   const typeSelect = document.getElementById('blockType');
-  const payloadInput = document.getElementById('blockPayload');
   const versionInput = document.getElementById('blockSchemaVersion');
-  if (!typeSelect || !payloadInput) return;
+  if (!typeSelect) return;
 
   const selectedKey = typeSelect.value; // e.g. "TASK.v1", "STORE.v1"
   const flat = state.schemasCatalog.flat || [];
   const match = flat.find(s => s.key === selectedKey) || flat.find(s => s.type === selectedKey);
 
   const blockId = document.getElementById('blockId')?.value;
-  // If editing an existing block and not explicitly forced, don't overwrite
+  // If editing and not forcing template reload, keep current table values
   if (blockId && !force) {
     return;
   }
 
   if (match) {
     if (versionInput) versionInput.value = match.version || 1;
-    if (match.template) {
-      payloadInput.value = JSON.stringify(match.template, null, 2);
-    }
+    renderPayloadTable(match.template || {}, {});
   } else {
     if (versionInput) versionInput.value = 1;
-    payloadInput.value = JSON.stringify({
+    renderPayloadTable({
       name: `Nuevo Bloque ${selectedKey}`,
       status: 'active'
-    }, null, 2);
+    }, {});
   }
 }
 
@@ -1540,7 +1662,7 @@ function openCreateBlockModal(parentId = null) {
 
   form.reset();
   blockIdInput.value = '';
-  title.textContent = parentId ? '➕ Crear Nuevo Bloque Hijo' : '➕ Crear Nuevo Bloque Raíz';
+  title.textContent = parentId ? '➕ Crear Bloque Hijo' : '➕ Crear Bloque Raíz';
 
   populateTypeSelects();
   populateParentSelect(parentId, null);
@@ -1554,7 +1676,7 @@ function openCreateBlockModal(parentId = null) {
     }
   }
 
-  // Force load example payload template for the selected schema
+  // Force load example payload template properties table for the selected schema
   handleTypeChange(true);
 
   dialog.showModal();
@@ -1577,7 +1699,7 @@ async function openEditBlockModal(blockId) {
 
   form.reset();
   blockIdInput.value = blockId;
-  title.textContent = '✏️ Editar Bloque Polimórfico';
+  title.textContent = '✏️ Editar Bloque';
 
   try {
     const res = await apiRequest(`/api/blocks/${blockId}`);
@@ -1595,8 +1717,11 @@ async function openEditBlockModal(blockId) {
 
     populateParentSelect(block.parent_id, block.id);
 
-    const payloadInput = document.getElementById('blockPayload');
-    payloadInput.value = block.payload ? JSON.stringify(block.payload, null, 2) : '{}';
+    // Look up schema template for default keys definition
+    const flat = state.schemasCatalog.flat || [];
+    const match = flat.find(s => s.key === expectedKey) || flat.find(s => s.type === block.payload_type);
+
+    renderPayloadTable(match?.template || block.payload || {}, block.payload || {});
 
     dialog.showModal();
   } catch (err) {
@@ -1610,7 +1735,6 @@ async function handleBlockFormSubmit(e) {
   const blockId = document.getElementById('blockId').value;
   const parentIdVal = document.getElementById('blockParentId').value;
   const rawTypeValue = document.getElementById('blockType').value; // e.g. "TASK.v1"
-  const payloadStr = document.getElementById('blockPayload').value.trim();
 
   // Parse type and version from key (e.g. "TASK.v1" -> type="TASK", version=1)
   let payload_type = rawTypeValue;
@@ -1624,15 +1748,8 @@ async function handleBlockFormSubmit(e) {
     payload_type_version = parseInt(document.getElementById('blockSchemaVersion').value, 10) || 1;
   }
 
-  let payload = null;
-  if (payloadStr) {
-    try {
-      payload = JSON.parse(payloadStr);
-    } catch (parseErr) {
-      showToast('Error de sintaxis en el JSON Payload: ' + parseErr.message, 'error');
-      return;
-    }
-  }
+  // Extract structured values from table
+  const payload = getPayloadFromTable();
 
   const payloadBody = {
     payload_type,
