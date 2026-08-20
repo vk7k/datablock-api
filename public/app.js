@@ -4,7 +4,7 @@
  * payload_type, payload_type_version & dynamic domain JSON payloads
  */
 
-// Polymorphic Block Types grouped by Domain with Realistic JSON Payload Templates
+// Comprehensive Polymorphic Block Types grouped by Domain with Curated JSON Payload Templates
 const DEFAULT_TYPES = [
   // 🏢 1. Software Engineering & Agile
   {
@@ -35,7 +35,9 @@ const DEFAULT_TYPES = [
       status: 'in_progress',
       businessValue: 'CRITICAL',
       targetQuarter: 'Q4 2026',
-      leadArchitect: 'David Kim'
+      leadArchitect: 'David Kim',
+      estimatedStoryPoints: 85,
+      impactAreas: ['Security', 'User Management', 'API Gateway']
     }
   },
   {
@@ -44,11 +46,14 @@ const DEFAULT_TYPES = [
     label: 'Sprint Ágil',
     color: 'badge-type-SPRINT',
     template: {
-      name: 'Sprint 14: Core STI & Web Studio',
+      name: 'Sprint 14: Core Polymorphic Blocks & Studio',
       status: 'in_progress',
       sprintNumber: 14,
       velocityTarget: 45,
-      goal: 'Completar arquitectura genérica de bloques y visor MySQL'
+      goal: 'Completar arquitectura genérica de bloques y visor MySQL',
+      startDate: '2026-09-01T00:00:00.000Z',
+      endDate: '2026-09-14T00:00:00.000Z',
+      scrumMaster: 'Alex Rivera'
     }
   },
   {
@@ -61,7 +66,11 @@ const DEFAULT_TYPES = [
       status: 'completed',
       storyPoints: 5,
       assignee: 'Elena Vance',
-      acceptanceCriteria: ['Validación Zod', 'Prisma JSON Column', 'Tests Unitarios'],
+      acceptanceCriteria: [
+        'Validación Zod para payload dinámico',
+        'Persistencia en columna JSON MySQL con Prisma',
+        'Fusión automática de campos en endpoints PUT'
+      ],
       priority: 'HIGH'
     }
   },
@@ -72,13 +81,13 @@ const DEFAULT_TYPES = [
     color: 'badge-type-TASK',
     template: {
       name: 'Implementar índices compuestos en MySQL',
-      status: 'completed',
+      status: 'in_progress',
       start_date: '2026-09-01T00:00:00.000Z',
       due_date: '2026-09-05T00:00:00.000Z',
       assignee: 'Dev Team',
       storyPoints: 3,
-      progress: 100,
-      tags: ['Backend', 'Node.js', 'Prisma']
+      progress: 65,
+      tags: ['Backend', 'Node.js', 'Prisma', 'Database']
     }
   },
   {
@@ -92,7 +101,8 @@ const DEFAULT_TYPES = [
       severity: 'CRITICAL',
       environment: 'Production',
       stepsToReproduce: '1. Iniciar sesión\n2. Esperar expiración\n3. Enviar petición PUT',
-      patchVersion: '1.0.2'
+      patchVersion: '1.0.2',
+      reportedBy: 'QA Lead'
     }
   },
   {
@@ -104,12 +114,14 @@ const DEFAULT_TYPES = [
       name: 'DataBlock Release v2.0.0',
       status: 'completed',
       version: 'v2.0.0',
+      releaseDate: '2026-09-30T00:00:00.000Z',
       changeLogUrl: 'https://cdn.uxcribe.com/releases/v2.0.0.md',
-      dockerImage: 'uxcribe/datablock-api:2.0.0'
+      dockerImage: 'uxcribe/datablock-api:2.0.0',
+      signedBy: 'Release Manager'
     }
   },
 
-  // 🎮 2. Game Development & Design
+  // 🎮 2. Game Development & Level Design
   {
     domain: 'gamedev',
     type: 'GAME',
@@ -123,6 +135,7 @@ const DEFAULT_TYPES = [
       targetEngine: 'Unreal Engine 5.4',
       targetPlatforms: ['PC (Steam)', 'PlayStation 5', 'Xbox Series X'],
       leadDesigner: 'Sarah Jenkins',
+      targetReleaseYear: 2027,
       gantt: { color: '#f472b6', criticalPath: true }
     }
   },
@@ -138,7 +151,8 @@ const DEFAULT_TYPES = [
       biome: 'Underground Catacombs & Crypts',
       targetFPS: 60,
       lightScenario: 'Dynamic Volumetric Fog + Torches',
-      worldBoundsMeters: { x: 500, y: 500, z: 80 }
+      worldBoundsMeters: { x: 500, y: 500, z: 80 },
+      musicTrack: 'BGM_Catacombs_Ambience.ogg'
     }
   },
   {
@@ -154,6 +168,7 @@ const DEFAULT_TYPES = [
       manaPool: 2000,
       baseDamage: 140,
       phaseCount: 3,
+      abilities: ['Shadow Bolt', 'Summon Skeletons', 'Death Nova'],
       voiceActor: 'Marcus Vance'
     }
   },
@@ -169,6 +184,11 @@ const DEFAULT_TYPES = [
       xpReward: 3000,
       goldReward: 750,
       requiredLevel: 4,
+      objectives: [
+        'Encontrar la Llave de Obsidiana',
+        'Derrotar a los 3 Guardianes del Círculo',
+        'Interactuar con el Altar Sagrado'
+      ],
       lootTable: ['Obsidian Relic', 'Elixir of Mana x5']
     }
   },
@@ -184,7 +204,38 @@ const DEFAULT_TYPES = [
       lodLevels: 4,
       textureResolution: '4K PBR',
       materials: ['Albedo', 'Normal', 'Roughness', 'Metallic', 'Emission'],
-      fileUrl: 'https://cdn.uxcribe.com/3d/gargoyle_boss.fbx'
+      fileUrl: 'https://cdn.uxcribe.com/3d/gargoyle_boss.fbx',
+      rigged: true
+    }
+  },
+  {
+    domain: 'gamedev',
+    type: 'AUDIO_VFX',
+    label: 'Audio / Efectos de Sonido',
+    color: 'badge-type-AUDIO_VFX',
+    template: {
+      name: 'SFX: Explosión Mágica de Oscuridad (Spatial Audio)',
+      status: 'completed',
+      sampleRateHz: 48000,
+      channels: '5.1 Surround',
+      durationSeconds: 2.8,
+      audioFormat: 'WAV 24-bit',
+      spatialAudioFalloffMeters: 45
+    }
+  },
+  {
+    domain: 'gamedev',
+    type: 'ITEM_EQUIPMENT',
+    label: 'Ítem / Armadura / Objeto',
+    color: 'badge-type-ITEM_EQUIPMENT',
+    template: {
+      name: 'Espada Devoradora de Almas +5',
+      status: 'completed',
+      rarity: 'LEGENDARY',
+      itemSlot: 'MAIN_HAND',
+      attackPower: 320,
+      durability: 500,
+      specialEffects: ['15% Robo de Vida', '+20 Daño de Sombra']
     }
   },
 
@@ -230,7 +281,8 @@ const DEFAULT_TYPES = [
       tableName: 'blocks',
       storageEngine: 'InnoDB',
       rowFormat: 'DYNAMIC',
-      estimatedRows: 500000
+      estimatedRows: 500000,
+      primaryKey: 'id'
     }
   },
   {
@@ -241,6 +293,7 @@ const DEFAULT_TYPES = [
     template: {
       name: 'column: payload (Dynamic JSON Document)',
       status: 'completed',
+      columnName: 'payload',
       dataType: 'JSON',
       isNullable: true,
       maxSizeBytes: 10485760
@@ -260,6 +313,20 @@ const DEFAULT_TYPES = [
       cardinality: 85000
     }
   },
+  {
+    domain: 'database',
+    type: 'MIGRATION',
+    label: 'Migración SQL / DDL',
+    color: 'badge-type-MIGRATION',
+    template: {
+      name: 'Migration 20260820_001_add_payload_type_version',
+      status: 'applied',
+      sequenceNumber: 14,
+      upSql: 'ALTER TABLE blocks ADD COLUMN payload_type VARCHAR(50) NOT NULL;',
+      downSql: 'ALTER TABLE blocks DROP COLUMN payload_type;',
+      executionTimeMs: 120
+    }
+  },
 
   // 🎬 4. Film Production & VFX
   {
@@ -274,7 +341,8 @@ const DEFAULT_TYPES = [
       aspectRatio: '2.39:1 (Anamorphic)',
       frameRate: 24,
       captureResolution: '8K RED RAW',
-      soundFormat: 'Dolby Atmos 7.1.4'
+      soundFormat: 'Dolby Atmos 7.1.4',
+      budgetUSD: 45000000
     }
   },
   {
@@ -285,9 +353,11 @@ const DEFAULT_TYPES = [
     template: {
       name: 'Escena 12: Emboscada en el Callejón Cyberpunk',
       status: 'in_progress',
+      sceneNumber: 12,
       location: 'Neo-Tokyo Sector 7',
       timeOfDay: 'Night / Heavy Rain',
-      lightingSetup: 'Dual Cyan Key + Magenta Rim'
+      lightingSetup: 'Dual Cyan Key + Magenta Rim',
+      actorsRequired: ['Kaelen (Lead)', 'Vanguard Mercenaries x4']
     }
   },
   {
@@ -298,9 +368,185 @@ const DEFAULT_TYPES = [
     template: {
       name: 'Toma 12A: Primer Plano Ojo Cibernético',
       status: 'completed',
+      shotCode: 'SC12_SH01',
       lens: '85mm Anamorphic T1.8',
       cameraRig: 'Steadicam Orbit + Tilt Up',
-      approvedTakes: [3, 7]
+      approvedTakes: [3, 7],
+      vfxRequired: true
+    }
+  },
+  {
+    domain: 'film',
+    type: 'RENDER_PASS',
+    label: 'Pase de Render VFX',
+    color: 'badge-type-RENDER_PASS',
+    template: {
+      name: 'Render Pass: Deep Beauty & Volumetric Light',
+      status: 'completed',
+      renderEngine: 'RenderMan 26 / ACEScg',
+      samplesPerPixel: 2048,
+      layers: ['Beauty', 'Cryptomatte', 'Z-Depth', 'VolumetricFog'],
+      outputResolution: '7680x3213 (8K DCI)'
+    }
+  },
+
+  // 📚 5. EdTech & Learning Management (LMS)
+  {
+    domain: 'edtech',
+    type: 'COURSE',
+    label: 'Curso Educativo (Root)',
+    color: 'badge-type-COURSE',
+    template: {
+      name: 'Mastering Universal Polymorphic Databases in Node.js',
+      status: 'in_progress',
+      instructor: 'Dr. Sarah Jenkins',
+      difficulty: 'ADVANCED',
+      estimatedHours: 40,
+      targetAudience: 'Backend Architects & Cloud Engineers',
+      certificateIncluded: true
+    }
+  },
+  {
+    domain: 'edtech',
+    type: 'MODULE',
+    label: 'Módulo de Aprendizaje',
+    color: 'badge-type-MODULE',
+    template: {
+      name: 'Módulo 3: Consultas JSON Indexadas y Single Table Inheritance',
+      status: 'in_progress',
+      moduleIndex: 3,
+      topics: ['JSON Operators en MySQL 8', 'Generación de Árboles O(N)', 'Búsquedas de alta velocidad'],
+      durationMinutes: 180
+    }
+  },
+  {
+    domain: 'edtech',
+    type: 'LESSON',
+    label: 'Lección Interactiva',
+    color: 'badge-type-LESSON',
+    template: {
+      name: 'Lección 3.2: Implementación Práctica con Prisma ORM',
+      status: 'completed',
+      lessonType: 'VIDEO_AND_CODE',
+      videoUrl: 'https://cdn.uxcribe.com/courses/lesson-3-2.mp4',
+      durationMinutes: 28,
+      downloadableCodeZip: 'https://cdn.uxcribe.com/courses/lesson-3-2-starter.zip'
+    }
+  },
+  {
+    domain: 'edtech',
+    type: 'QUIZ',
+    label: 'Evaluación / Quiz',
+    color: 'badge-type-QUIZ',
+    template: {
+      name: 'Quiz Final: Arquitectura de Bloques y Esquemas JSON',
+      status: 'pending',
+      questionCount: 15,
+      passingScorePercent: 80,
+      timeLimitMinutes: 30,
+      attemptsAllowed: 3
+    }
+  },
+
+  // 🛒 6. E-Commerce & Retail Catalog
+  {
+    domain: 'ecommerce',
+    type: 'STORE',
+    label: 'Tienda / Comercio (Root)',
+    color: 'badge-type-STORE',
+    template: {
+      name: 'MegaTech Cloud Storefront',
+      status: 'in_progress',
+      currency: 'USD',
+      operatingCountry: 'CL / Global',
+      taxRatePercent: 19.0,
+      paymentGateways: ['Stripe', 'PayPal', 'Webpay Plus']
+    }
+  },
+  {
+    domain: 'ecommerce',
+    type: 'CATEGORY',
+    label: 'Categoría de Catálogo',
+    color: 'badge-type-CATEGORY',
+    template: {
+      name: 'Servidores & Componentes de Alto Rendimiento',
+      status: 'completed',
+      categorySlug: 'servers-hardware',
+      displayOrder: 1,
+      bannerImageUrl: 'https://cdn.uxcribe.com/store/banners/servers.jpg'
+    }
+  },
+  {
+    domain: 'ecommerce',
+    type: 'PRODUCT',
+    label: 'Producto / SKU',
+    color: 'badge-type-PRODUCT',
+    template: {
+      name: 'Servidor Rack 1U Xeon Gold 64GB DDR5 NVMe',
+      status: 'completed',
+      sku: 'SRV-1U-XG64',
+      unitPrice: 2850.00,
+      stockQuantity: 18,
+      weightKg: 12.5,
+      warrantyMonths: 36
+    }
+  },
+  {
+    domain: 'ecommerce',
+    type: 'INVOICE',
+    label: 'Factura / Documento Tributario',
+    color: 'badge-type-INVOICE',
+    template: {
+      name: 'Factura Electrónica F-004921',
+      status: 'completed',
+      invoiceNumber: 'F-004921',
+      customerName: 'Tech Innovators SpA',
+      taxId: '76.123.456-7',
+      netAmount: 5700.00,
+      taxAmount: 1083.00,
+      totalAmount: 6783.00
+    }
+  },
+
+  // ✨ 7. Generic & Notes
+  {
+    domain: 'generic',
+    type: 'GENERIC',
+    label: 'Nodo Genérico Universal',
+    color: 'badge-type-GENERIC',
+    template: {
+      name: 'Elemento Polimórfico Genérico',
+      status: 'active',
+      description: 'Bloque base con atributos libres',
+      tags: ['Universal', 'Custom'],
+      customAttribute: 'Cualquier valor JSON válido'
+    }
+  },
+  {
+    domain: 'generic',
+    type: 'DOCUMENT',
+    label: 'Documento / Especificación',
+    color: 'badge-type-DOCUMENT',
+    template: {
+      name: 'Especificación de Requerimientos v1.0',
+      status: 'completed',
+      author: 'Product Owner',
+      wordCount: 3400,
+      documentFormat: 'Markdown / PDF',
+      approvedBy: ['CTO', 'Lead Architect']
+    }
+  },
+  {
+    domain: 'generic',
+    type: 'NOTE',
+    label: 'Nota Rápida / Bitácora',
+    color: 'badge-type-NOTE',
+    template: {
+      name: 'Nota: Recordatorio de despliegue a producción',
+      status: 'active',
+      pinned: true,
+      noteContent: 'Verificar certificados SSL y ejecutar migraciones en la ventana de mantenimiento.',
+      priority: 'HIGH'
     }
   }
 ];
@@ -508,6 +754,7 @@ function getBlockDisplayName(block) {
     if (block.payload.title) return block.payload.title;
     if (block.payload.tableName) return `table: ${block.payload.tableName}`;
     if (block.payload.schemaName) return `schema: ${block.payload.schemaName}`;
+    if (block.payload.sku) return `SKU: ${block.payload.sku}`;
   }
   return `[${block.payload_type || 'GENERIC'}] ${block.id ? block.id.slice(0, 8) : ''}`;
 }
@@ -523,8 +770,8 @@ function getBlockStatus(block) {
 // Helper: Extract dates
 function getBlockDates(block) {
   if (!block || !block.payload) return null;
-  const start = block.payload.start_date;
-  const end = block.payload.end_date || block.payload.due_date;
+  const start = block.payload.start_date || block.payload.startDate;
+  const end = block.payload.end_date || block.payload.dueDate || block.payload.endDate || block.payload.due_date;
   if (!start && !end) return null;
 
   const startStr = start ? new Date(start).toLocaleDateString() : '';
@@ -859,7 +1106,6 @@ const DOMAIN_SAMPLES = {
     name: '🎮 Videojuego: Eldoria (Game Design)',
     description: 'Árbol completo de diseño de videojuego: Título -> Niveles/Biomas -> Jefes/NPCs, Misiones con loot y Modelos 3D PBR.',
     create: async () => {
-      // 1. Root Game
       const root = await apiRequest('/api/blocks', {
         method: 'POST',
         body: JSON.stringify({
@@ -879,7 +1125,6 @@ const DOMAIN_SAMPLES = {
 
       const gameId = root.data.id;
 
-      // 2. Level 1 (Act I)
       const level1 = await apiRequest('/api/blocks', {
         method: 'POST',
         body: JSON.stringify({
@@ -898,7 +1143,6 @@ const DOMAIN_SAMPLES = {
       });
       const level1Id = level1.data.id;
 
-      // 2.1 Boss under Level 1
       await apiRequest('/api/blocks', {
         method: 'POST',
         body: JSON.stringify({
@@ -918,7 +1162,6 @@ const DOMAIN_SAMPLES = {
         })
       });
 
-      // 2.2 Quest under Level 1
       await apiRequest('/api/blocks', {
         method: 'POST',
         body: JSON.stringify({
@@ -937,7 +1180,6 @@ const DOMAIN_SAMPLES = {
         })
       });
 
-      // 2.3 3D Asset under Level 1
       await apiRequest('/api/blocks', {
         method: 'POST',
         body: JSON.stringify({
@@ -954,24 +1196,6 @@ const DOMAIN_SAMPLES = {
           }
         })
       });
-
-      // 3. Level 2 (Act II)
-      await apiRequest('/api/blocks', {
-        method: 'POST',
-        body: JSON.stringify({
-          parent_id: gameId,
-          payload_type: 'LEVEL',
-          payload_type_version: 1,
-          payload: {
-            name: 'Act II: Sunken Citadel of Titans',
-            status: 'pending',
-            levelIndex: 2,
-            biome: 'Underwater Submerged City',
-            targetFPS: 60,
-            waterPhysicsEnabled: true
-          }
-        })
-      });
     }
   },
 
@@ -979,7 +1203,6 @@ const DOMAIN_SAMPLES = {
     name: '🗄️ Arquitectura Cloud: Aurora MySQL Cluster',
     description: 'Modelado de infraestructura y esquema de base de datos: Cluster -> Esquema -> Tablas -> Columnas, Índices y Migraciones.',
     create: async () => {
-      // 1. Root Cluster
       const root = await apiRequest('/api/blocks', {
         method: 'POST',
         body: JSON.stringify({
@@ -999,7 +1222,6 @@ const DOMAIN_SAMPLES = {
       });
       const clusterId = root.data.id;
 
-      // 2. Schema
       const schema = await apiRequest('/api/blocks', {
         method: 'POST',
         body: JSON.stringify({
@@ -1017,7 +1239,6 @@ const DOMAIN_SAMPLES = {
       });
       const schemaId = schema.data.id;
 
-      // 2.1 Table 'blocks'
       const tableBlocks = await apiRequest('/api/blocks', {
         method: 'POST',
         body: JSON.stringify({
@@ -1036,7 +1257,6 @@ const DOMAIN_SAMPLES = {
       });
       const tableBlocksId = tableBlocks.data.id;
 
-      // 2.1.1 Column 'payload'
       await apiRequest('/api/blocks', {
         method: 'POST',
         body: JSON.stringify({
@@ -1053,7 +1273,6 @@ const DOMAIN_SAMPLES = {
         })
       });
 
-      // 2.1.2 Index
       await apiRequest('/api/blocks', {
         method: 'POST',
         body: JSON.stringify({
@@ -1773,11 +1992,14 @@ function populateTypeSelects() {
       gamedev: '🎮 Desarrollo de Videojuegos',
       database: '🗄️ Arquitectura Cloud & DB',
       film: '🎬 Cine & Producción VFX',
-      custom: '✨ Personalizados'
+      edtech: '📚 Educación & E-Learning',
+      ecommerce: '🛒 Comercio & Catálogo',
+      generic: '✨ Genéricos & Documentos',
+      custom: '⭐ Personalizados'
     };
 
     Object.keys(domains).forEach(domKey => {
-      const matchingTypes = allTypes.filter(t => (t.domain || (state.customTypes.some(ct => ct.type === t.type) ? 'custom' : 'software')) === domKey);
+      const matchingTypes = allTypes.filter(t => (t.domain || (state.customTypes.some(ct => ct.type === t.type) ? 'custom' : 'generic')) === domKey);
       if (matchingTypes.length > 0) {
         const group = document.createElement('optgroup');
         group.label = domains[domKey];
@@ -1807,14 +2029,28 @@ function populateTypeSelects() {
   }
 }
 
-function handleTypeChange() {
+function handleTypeChange(force = true) {
   const typeSelect = document.getElementById('blockType');
   const payloadInput = document.getElementById('blockPayload');
+  if (!typeSelect || !payloadInput) return;
+
   const selectedType = typeSelect.value;
   const match = getAllTypes().find(t => t.type === selectedType);
 
-  if (match && match.template && payloadInput && (!payloadInput.value.trim() || payloadInput.value.trim() === '{}')) {
+  const blockId = document.getElementById('blockId')?.value;
+  // If editing an existing block and not explicitly forced, don't overwrite
+  if (blockId && !force) {
+    return;
+  }
+
+  if (match && match.template) {
     payloadInput.value = JSON.stringify(match.template, null, 2);
+  } else {
+    payloadInput.value = JSON.stringify({
+      name: `Nuevo Bloque ${selectedType}`,
+      status: 'active',
+      tags: [selectedType]
+    }, null, 2);
   }
 }
 
@@ -1823,7 +2059,6 @@ function openCreateBlockModal(parentId = null) {
   const form = document.getElementById('blockForm');
   const title = document.getElementById('blockModalTitle');
   const blockIdInput = document.getElementById('blockId');
-  const payloadInput = document.getElementById('blockPayload');
 
   form.reset();
   blockIdInput.value = '';
@@ -1834,8 +2069,14 @@ function openCreateBlockModal(parentId = null) {
   populateTypeSelects();
   populateParentSelect(parentId, null);
 
-  // Set default payload template
-  handleTypeChange();
+  // Set default type
+  const typeSelect = document.getElementById('blockType');
+  if (typeSelect) {
+    typeSelect.value = parentId ? 'TASK' : 'PROJECT';
+  }
+
+  // Force load example payload template for the selected type
+  handleTypeChange(true);
 
   dialog.showModal();
 }
@@ -1845,7 +2086,7 @@ function openCreateBlockWithType(typeName) {
   const typeSelect = document.getElementById('blockType');
   if (typeSelect) {
     typeSelect.value = typeName;
-    handleTypeChange();
+    handleTypeChange(true);
   }
 }
 
@@ -2095,10 +2336,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Type change listener
+  // Type change listener: ALWAYS trigger dynamic template update on user selection
   const blockTypeSelect = document.getElementById('blockType');
   if (blockTypeSelect) {
-    blockTypeSelect.addEventListener('change', handleTypeChange);
+    blockTypeSelect.addEventListener('change', () => {
+      handleTypeChange(true);
+    });
   }
 
   // Form Submissions

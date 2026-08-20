@@ -419,6 +419,7 @@ textarea.form-control {
 .badge-type-QUEST           { background: rgba(234, 179, 8, 0.15);  color: #facc15; border: 1px solid rgba(234, 179, 8, 0.3); }
 .badge-type-ASSET_3D        { background: rgba(6, 182, 212, 0.15);  color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.3); }
 .badge-type-AUDIO_VFX       { background: rgba(139, 92, 246, 0.15); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.3); }
+.badge-type-ITEM_EQUIPMENT  { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
 
 /* Database Architecture Domain */
 .badge-type-DATABASE_CLUSTER{ background: rgba(14, 165, 233, 0.15); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.3); }
@@ -435,15 +436,28 @@ textarea.form-control {
 .badge-type-BUG             { background: rgba(239, 68, 68, 0.15);   color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
 .badge-type-RELEASE         { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
 
-/* Film Production & EdTech */
+/* Film Production & VFX */
 .badge-type-FILM_PROJECT    { background: rgba(217, 70, 239, 0.15); color: #e879f9; border: 1px solid rgba(217, 70, 239, 0.3); }
 .badge-type-SCENE           { background: rgba(244, 63, 94, 0.15);  color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.3); }
 .badge-type-SHOT            { background: rgba(249, 115, 22, 0.15); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.3); }
+.badge-type-RENDER_PASS     { background: rgba(14, 165, 233, 0.15); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.3); }
+
+/* EdTech & LMS Domain */
 .badge-type-COURSE          { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
 .badge-type-MODULE          { background: rgba(139, 92, 246, 0.15); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.3); }
 .badge-type-LESSON          { background: rgba(34, 197, 94, 0.15);  color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
 .badge-type-QUIZ            { background: rgba(234, 179, 8, 0.15);  color: #facc15; border: 1px solid rgba(234, 179, 8, 0.3); }
 
+/* E-Commerce Domain */
+.badge-type-STORE           { background: rgba(234, 179, 8, 0.15);  color: #facc15; border: 1px solid rgba(234, 179, 8, 0.3); }
+.badge-type-CATEGORY        { background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); }
+.badge-type-PRODUCT         { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+.badge-type-INVOICE         { background: rgba(6, 182, 212, 0.15);  color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.3); }
+
+/* Generic & Notes */
+.badge-type-GENERIC         { background: rgba(148, 163, 184, 0.15);color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.3); }
+.badge-type-DOCUMENT        { background: rgba(14, 165, 233, 0.15); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.3); }
+.badge-type-NOTE            { background: rgba(251, 191, 36, 0.15); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3); }
 .badge-type-CUSTOM          { background: rgba(99, 102, 241, 0.15);  color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); }
 
 .badge-status-pending    { background: rgba(100, 116, 139, 0.2); color: #94a3b8; }
