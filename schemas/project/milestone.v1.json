@@ -1,0 +1,8 @@
+{
+  "name": "Hito: Aprobación del Diseño Conceptual",
+  "status": "pending",
+  "target_date": "2026-09-30T00:00:00.000Z",
+  "critical_path": true,
+  "sign_off_by": "Comité de Dirección",
+  "success_criteria": "Aprobación formal del 100% de los interesados clave"
+}

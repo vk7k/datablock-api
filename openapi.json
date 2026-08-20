@@ -513,6 +513,77 @@
           "200": {
             "description": "Block deleted successfully",
             "content": {
+              "application/json": null
+            }
+          }
+        }
+      }
+    },
+    "/api/schemas": {
+      "get": {
+        "tags": [
+          "Schemas"
+        ],
+        "summary": "Get official payload schemas catalog (organized by domain folders)",
+        "description": "Scans project `schemas/` directory and returns all available payload schema templates grouped by domain.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Payload schemas catalog",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
+    "/api/schemas/{type}/{version}": {
+      "get": {
+        "tags": [
+          "Schemas"
+        ],
+        "summary": "Get specific schema template",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "type",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "TASK"
+            }
+          },
+          {
+            "in": "path",
+            "name": "version",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Schema template definition",
+            "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/StandardResponse"

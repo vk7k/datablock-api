@@ -1,0 +1,11 @@
+{
+  "name": "Nigromante de las Sombras (Boss)",
+  "status": "active",
+  "characterClass": "Boss / Spellcaster",
+  "maxHealth": 4800,
+  "manaPool": 2000,
+  "baseDamage": 140,
+  "phaseCount": 3,
+  "abilities": ["Shadow Bolt", "Summon Skeletons", "Death Nova"],
+  "voiceActor": "Marcus Vance"
+}

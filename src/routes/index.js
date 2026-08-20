@@ -3,6 +3,7 @@ const authRoutes = require('./auth.routes');
 const userRoutes = require('./user.routes');
 const blockRoutes = require('./block.routes');
 const databaseRoutes = require('./database.routes');
+const schemaRoutes = require('./schema.routes');
 const { successResponse } = require('../utils/response.util');
 
 const router = express.Router();
@@ -22,5 +23,6 @@ router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/blocks', blockRoutes);
 router.use('/database', databaseRoutes);
+router.use('/schemas', schemaRoutes);
 
 module.exports = router;

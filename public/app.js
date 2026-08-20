@@ -1,555 +1,8 @@
 /**
  * DataBlock Studio - Single Page Application Client
  * Fully Generic Polymorphic Block Architecture
- * payload_type, payload_type_version & dynamic domain JSON payloads
+ * Live File-Based Schemas (schemas/<domain>/<type>.<version>.json)
  */
-
-// Comprehensive Polymorphic Block Types grouped by Domain with Curated JSON Payload Templates
-const DEFAULT_TYPES = [
-  // 🏢 1. Software Engineering & Agile
-  {
-    domain: 'software',
-    type: 'PROJECT',
-    label: 'Proyecto Software (Root)',
-    color: 'badge-type-PROJECT',
-    template: {
-      name: 'Enterprise Cloud Platform Redesign',
-      status: 'in_progress',
-      start_date: '2026-09-01T00:00:00.000Z',
-      end_date: '2026-11-30T00:00:00.000Z',
-      budget: 180000,
-      client: 'Acme Cloud Corp',
-      manager: 'Sarah Jenkins',
-      methodology: 'SCRUM',
-      repoUrl: 'https://github.com/acme/cloud-engine',
-      gantt: { color: '#38bdf8', criticalPath: true }
-    }
-  },
-  {
-    domain: 'software',
-    type: 'EPIC',
-    label: 'Épica de Negocio',
-    color: 'badge-type-EPIC',
-    template: {
-      name: 'EPIC-102: Modernización de Autenticación & RBAC',
-      status: 'in_progress',
-      businessValue: 'CRITICAL',
-      targetQuarter: 'Q4 2026',
-      leadArchitect: 'David Kim',
-      estimatedStoryPoints: 85,
-      impactAreas: ['Security', 'User Management', 'API Gateway']
-    }
-  },
-  {
-    domain: 'software',
-    type: 'SPRINT',
-    label: 'Sprint Ágil',
-    color: 'badge-type-SPRINT',
-    template: {
-      name: 'Sprint 14: Core Polymorphic Blocks & Studio',
-      status: 'in_progress',
-      sprintNumber: 14,
-      velocityTarget: 45,
-      goal: 'Completar arquitectura genérica de bloques y visor MySQL',
-      startDate: '2026-09-01T00:00:00.000Z',
-      endDate: '2026-09-14T00:00:00.000Z',
-      scrumMaster: 'Alex Rivera'
-    }
-  },
-  {
-    domain: 'software',
-    type: 'STORY',
-    label: 'Historia de Usuario',
-    color: 'badge-type-STORY',
-    template: {
-      name: 'Como desarrollador quiero guardar payloads dinámicos',
-      status: 'completed',
-      storyPoints: 5,
-      assignee: 'Elena Vance',
-      acceptanceCriteria: [
-        'Validación Zod para payload dinámico',
-        'Persistencia en columna JSON MySQL con Prisma',
-        'Fusión automática de campos en endpoints PUT'
-      ],
-      priority: 'HIGH'
-    }
-  },
-  {
-    domain: 'software',
-    type: 'TASK',
-    label: 'Tarea / Actividad',
-    color: 'badge-type-TASK',
-    template: {
-      name: 'Implementar índices compuestos en MySQL',
-      status: 'in_progress',
-      start_date: '2026-09-01T00:00:00.000Z',
-      due_date: '2026-09-05T00:00:00.000Z',
-      assignee: 'Dev Team',
-      storyPoints: 3,
-      progress: 65,
-      tags: ['Backend', 'Node.js', 'Prisma', 'Database']
-    }
-  },
-  {
-    domain: 'software',
-    type: 'BUG',
-    label: 'Defecto / Bug Report',
-    color: 'badge-type-BUG',
-    template: {
-      name: 'BUG-401: Token JWT no se refresca al expirar',
-      status: 'pending',
-      severity: 'CRITICAL',
-      environment: 'Production',
-      stepsToReproduce: '1. Iniciar sesión\n2. Esperar expiración\n3. Enviar petición PUT',
-      patchVersion: '1.0.2',
-      reportedBy: 'QA Lead'
-    }
-  },
-  {
-    domain: 'software',
-    type: 'RELEASE',
-    label: 'Versión / Release',
-    color: 'badge-type-RELEASE',
-    template: {
-      name: 'DataBlock Release v2.0.0',
-      status: 'completed',
-      version: 'v2.0.0',
-      releaseDate: '2026-09-30T00:00:00.000Z',
-      changeLogUrl: 'https://cdn.uxcribe.com/releases/v2.0.0.md',
-      dockerImage: 'uxcribe/datablock-api:2.0.0',
-      signedBy: 'Release Manager'
-    }
-  },
-
-  // 🎮 2. Game Development & Level Design
-  {
-    domain: 'gamedev',
-    type: 'GAME',
-    label: 'Videojuego (Root)',
-    color: 'badge-type-GAME',
-    template: {
-      name: 'Eldoria: Shadows of Eternity',
-      status: 'in_progress',
-      title: 'Eldoria: Shadows of Eternity',
-      genre: 'Action RPG / Open World',
-      targetEngine: 'Unreal Engine 5.4',
-      targetPlatforms: ['PC (Steam)', 'PlayStation 5', 'Xbox Series X'],
-      leadDesigner: 'Sarah Jenkins',
-      targetReleaseYear: 2027,
-      gantt: { color: '#f472b6', criticalPath: true }
-    }
-  },
-  {
-    domain: 'gamedev',
-    type: 'LEVEL',
-    label: 'Nivel / Mundo / Bioma',
-    color: 'badge-type-LEVEL',
-    template: {
-      name: 'Act I: Catacumbas Susurrantes',
-      status: 'in_progress',
-      levelIndex: 1,
-      biome: 'Underground Catacombs & Crypts',
-      targetFPS: 60,
-      lightScenario: 'Dynamic Volumetric Fog + Torches',
-      worldBoundsMeters: { x: 500, y: 500, z: 80 },
-      musicTrack: 'BGM_Catacombs_Ambience.ogg'
-    }
-  },
-  {
-    domain: 'gamedev',
-    type: 'CHARACTER',
-    label: 'Personaje / NPC / Jefe',
-    color: 'badge-type-CHARACTER',
-    template: {
-      name: 'Nigromante de las Sombras (Boss)',
-      status: 'active',
-      characterClass: 'Boss / Spellcaster',
-      maxHealth: 4800,
-      manaPool: 2000,
-      baseDamage: 140,
-      phaseCount: 3,
-      abilities: ['Shadow Bolt', 'Summon Skeletons', 'Death Nova'],
-      voiceActor: 'Marcus Vance'
-    }
-  },
-  {
-    domain: 'gamedev',
-    type: 'QUEST',
-    label: 'Misión / Objetivo',
-    color: 'badge-type-QUEST',
-    template: {
-      name: 'Misión: Purificar el Altar Sagrado',
-      status: 'completed',
-      questType: 'MAIN_STORY',
-      xpReward: 3000,
-      goldReward: 750,
-      requiredLevel: 4,
-      objectives: [
-        'Encontrar la Llave de Obsidiana',
-        'Derrotar a los 3 Guardianes del Círculo',
-        'Interactuar con el Altar Sagrado'
-      ],
-      lootTable: ['Obsidian Relic', 'Elixir of Mana x5']
-    }
-  },
-  {
-    domain: 'gamedev',
-    type: 'ASSET_3D',
-    label: 'Modelo 3D / Mesh / Props',
-    color: 'badge-type-ASSET_3D',
-    template: {
-      name: 'Malla 3D Gárgola Jefe con Texturas PBR 4K',
-      status: 'completed',
-      polygonCount: 32500,
-      lodLevels: 4,
-      textureResolution: '4K PBR',
-      materials: ['Albedo', 'Normal', 'Roughness', 'Metallic', 'Emission'],
-      fileUrl: 'https://cdn.uxcribe.com/3d/gargoyle_boss.fbx',
-      rigged: true
-    }
-  },
-  {
-    domain: 'gamedev',
-    type: 'AUDIO_VFX',
-    label: 'Audio / Efectos de Sonido',
-    color: 'badge-type-AUDIO_VFX',
-    template: {
-      name: 'SFX: Explosión Mágica de Oscuridad (Spatial Audio)',
-      status: 'completed',
-      sampleRateHz: 48000,
-      channels: '5.1 Surround',
-      durationSeconds: 2.8,
-      audioFormat: 'WAV 24-bit',
-      spatialAudioFalloffMeters: 45
-    }
-  },
-  {
-    domain: 'gamedev',
-    type: 'ITEM_EQUIPMENT',
-    label: 'Ítem / Armadura / Objeto',
-    color: 'badge-type-ITEM_EQUIPMENT',
-    template: {
-      name: 'Espada Devoradora de Almas +5',
-      status: 'completed',
-      rarity: 'LEGENDARY',
-      itemSlot: 'MAIN_HAND',
-      attackPower: 320,
-      durability: 500,
-      specialEffects: ['15% Robo de Vida', '+20 Daño de Sombra']
-    }
-  },
-
-  // 🗄️ 3. Database Architecture & Cloud Data Engineering
-  {
-    domain: 'database',
-    type: 'DATABASE_CLUSTER',
-    label: 'Cluster de Base de Datos (Root)',
-    color: 'badge-type-DATABASE_CLUSTER',
-    template: {
-      name: 'Aurora MySQL 8.4 Production Cluster',
-      status: 'in_progress',
-      engine: 'MySQL 8.4 Community LTS',
-      topology: 'Multi-AZ Primary-Replica',
-      nodeCount: 3,
-      memoryGB: 64,
-      storageGB: 500,
-      iops: 12000,
-      gantt: { color: '#0ea5e9', criticalPath: true }
-    }
-  },
-  {
-    domain: 'database',
-    type: 'SCHEMA',
-    label: 'Esquema / Namespace Lógico',
-    color: 'badge-type-SCHEMA',
-    template: {
-      name: 'schema: block_system_production',
-      status: 'completed',
-      defaultCharset: 'utf8mb4',
-      defaultCollation: 'utf8mb4_unicode_ci',
-      enforceForeignKeys: true
-    }
-  },
-  {
-    domain: 'database',
-    type: 'TABLE',
-    label: 'Tabla Relacional',
-    color: 'badge-type-TABLE',
-    template: {
-      name: 'table: blocks (Universal Polymorphic Node)',
-      status: 'completed',
-      tableName: 'blocks',
-      storageEngine: 'InnoDB',
-      rowFormat: 'DYNAMIC',
-      estimatedRows: 500000,
-      primaryKey: 'id'
-    }
-  },
-  {
-    domain: 'database',
-    type: 'COLUMN',
-    label: 'Columna / Atributo',
-    color: 'badge-type-COLUMN',
-    template: {
-      name: 'column: payload (Dynamic JSON Document)',
-      status: 'completed',
-      columnName: 'payload',
-      dataType: 'JSON',
-      isNullable: true,
-      maxSizeBytes: 10485760
-    }
-  },
-  {
-    domain: 'database',
-    type: 'INDEX',
-    label: 'Índice de Rendimiento',
-    color: 'badge-type-INDEX',
-    template: {
-      name: 'index: idx_blocks_payload_type',
-      status: 'completed',
-      indexType: 'BTREE',
-      indexedColumns: ['payload_type'],
-      isUnique: false,
-      cardinality: 85000
-    }
-  },
-  {
-    domain: 'database',
-    type: 'MIGRATION',
-    label: 'Migración SQL / DDL',
-    color: 'badge-type-MIGRATION',
-    template: {
-      name: 'Migration 20260820_001_add_payload_type_version',
-      status: 'applied',
-      sequenceNumber: 14,
-      upSql: 'ALTER TABLE blocks ADD COLUMN payload_type VARCHAR(50) NOT NULL;',
-      downSql: 'ALTER TABLE blocks DROP COLUMN payload_type;',
-      executionTimeMs: 120
-    }
-  },
-
-  // 🎬 4. Film Production & VFX
-  {
-    domain: 'film',
-    type: 'FILM_PROJECT',
-    label: 'Producción Cinematográfica (Root)',
-    color: 'badge-type-FILM_PROJECT',
-    template: {
-      name: 'Neo-Genesis 2099 (Feature Film)',
-      status: 'in_progress',
-      director: 'Denis Vance',
-      aspectRatio: '2.39:1 (Anamorphic)',
-      frameRate: 24,
-      captureResolution: '8K RED RAW',
-      soundFormat: 'Dolby Atmos 7.1.4',
-      budgetUSD: 45000000
-    }
-  },
-  {
-    domain: 'film',
-    type: 'SCENE',
-    label: 'Escena',
-    color: 'badge-type-SCENE',
-    template: {
-      name: 'Escena 12: Emboscada en el Callejón Cyberpunk',
-      status: 'in_progress',
-      sceneNumber: 12,
-      location: 'Neo-Tokyo Sector 7',
-      timeOfDay: 'Night / Heavy Rain',
-      lightingSetup: 'Dual Cyan Key + Magenta Rim',
-      actorsRequired: ['Kaelen (Lead)', 'Vanguard Mercenaries x4']
-    }
-  },
-  {
-    domain: 'film',
-    type: 'SHOT',
-    label: 'Toma de Cámara',
-    color: 'badge-type-SHOT',
-    template: {
-      name: 'Toma 12A: Primer Plano Ojo Cibernético',
-      status: 'completed',
-      shotCode: 'SC12_SH01',
-      lens: '85mm Anamorphic T1.8',
-      cameraRig: 'Steadicam Orbit + Tilt Up',
-      approvedTakes: [3, 7],
-      vfxRequired: true
-    }
-  },
-  {
-    domain: 'film',
-    type: 'RENDER_PASS',
-    label: 'Pase de Render VFX',
-    color: 'badge-type-RENDER_PASS',
-    template: {
-      name: 'Render Pass: Deep Beauty & Volumetric Light',
-      status: 'completed',
-      renderEngine: 'RenderMan 26 / ACEScg',
-      samplesPerPixel: 2048,
-      layers: ['Beauty', 'Cryptomatte', 'Z-Depth', 'VolumetricFog'],
-      outputResolution: '7680x3213 (8K DCI)'
-    }
-  },
-
-  // 📚 5. EdTech & Learning Management (LMS)
-  {
-    domain: 'edtech',
-    type: 'COURSE',
-    label: 'Curso Educativo (Root)',
-    color: 'badge-type-COURSE',
-    template: {
-      name: 'Mastering Universal Polymorphic Databases in Node.js',
-      status: 'in_progress',
-      instructor: 'Dr. Sarah Jenkins',
-      difficulty: 'ADVANCED',
-      estimatedHours: 40,
-      targetAudience: 'Backend Architects & Cloud Engineers',
-      certificateIncluded: true
-    }
-  },
-  {
-    domain: 'edtech',
-    type: 'MODULE',
-    label: 'Módulo de Aprendizaje',
-    color: 'badge-type-MODULE',
-    template: {
-      name: 'Módulo 3: Consultas JSON Indexadas y Single Table Inheritance',
-      status: 'in_progress',
-      moduleIndex: 3,
-      topics: ['JSON Operators en MySQL 8', 'Generación de Árboles O(N)', 'Búsquedas de alta velocidad'],
-      durationMinutes: 180
-    }
-  },
-  {
-    domain: 'edtech',
-    type: 'LESSON',
-    label: 'Lección Interactiva',
-    color: 'badge-type-LESSON',
-    template: {
-      name: 'Lección 3.2: Implementación Práctica con Prisma ORM',
-      status: 'completed',
-      lessonType: 'VIDEO_AND_CODE',
-      videoUrl: 'https://cdn.uxcribe.com/courses/lesson-3-2.mp4',
-      durationMinutes: 28,
-      downloadableCodeZip: 'https://cdn.uxcribe.com/courses/lesson-3-2-starter.zip'
-    }
-  },
-  {
-    domain: 'edtech',
-    type: 'QUIZ',
-    label: 'Evaluación / Quiz',
-    color: 'badge-type-QUIZ',
-    template: {
-      name: 'Quiz Final: Arquitectura de Bloques y Esquemas JSON',
-      status: 'pending',
-      questionCount: 15,
-      passingScorePercent: 80,
-      timeLimitMinutes: 30,
-      attemptsAllowed: 3
-    }
-  },
-
-  // 🛒 6. E-Commerce & Retail Catalog
-  {
-    domain: 'ecommerce',
-    type: 'STORE',
-    label: 'Tienda / Comercio (Root)',
-    color: 'badge-type-STORE',
-    template: {
-      name: 'MegaTech Cloud Storefront',
-      status: 'in_progress',
-      currency: 'USD',
-      operatingCountry: 'CL / Global',
-      taxRatePercent: 19.0,
-      paymentGateways: ['Stripe', 'PayPal', 'Webpay Plus']
-    }
-  },
-  {
-    domain: 'ecommerce',
-    type: 'CATEGORY',
-    label: 'Categoría de Catálogo',
-    color: 'badge-type-CATEGORY',
-    template: {
-      name: 'Servidores & Componentes de Alto Rendimiento',
-      status: 'completed',
-      categorySlug: 'servers-hardware',
-      displayOrder: 1,
-      bannerImageUrl: 'https://cdn.uxcribe.com/store/banners/servers.jpg'
-    }
-  },
-  {
-    domain: 'ecommerce',
-    type: 'PRODUCT',
-    label: 'Producto / SKU',
-    color: 'badge-type-PRODUCT',
-    template: {
-      name: 'Servidor Rack 1U Xeon Gold 64GB DDR5 NVMe',
-      status: 'completed',
-      sku: 'SRV-1U-XG64',
-      unitPrice: 2850.00,
-      stockQuantity: 18,
-      weightKg: 12.5,
-      warrantyMonths: 36
-    }
-  },
-  {
-    domain: 'ecommerce',
-    type: 'INVOICE',
-    label: 'Factura / Documento Tributario',
-    color: 'badge-type-INVOICE',
-    template: {
-      name: 'Factura Electrónica F-004921',
-      status: 'completed',
-      invoiceNumber: 'F-004921',
-      customerName: 'Tech Innovators SpA',
-      taxId: '76.123.456-7',
-      netAmount: 5700.00,
-      taxAmount: 1083.00,
-      totalAmount: 6783.00
-    }
-  },
-
-  // ✨ 7. Generic & Notes
-  {
-    domain: 'generic',
-    type: 'GENERIC',
-    label: 'Nodo Genérico Universal',
-    color: 'badge-type-GENERIC',
-    template: {
-      name: 'Elemento Polimórfico Genérico',
-      status: 'active',
-      description: 'Bloque base con atributos libres',
-      tags: ['Universal', 'Custom'],
-      customAttribute: 'Cualquier valor JSON válido'
-    }
-  },
-  {
-    domain: 'generic',
-    type: 'DOCUMENT',
-    label: 'Documento / Especificación',
-    color: 'badge-type-DOCUMENT',
-    template: {
-      name: 'Especificación de Requerimientos v1.0',
-      status: 'completed',
-      author: 'Product Owner',
-      wordCount: 3400,
-      documentFormat: 'Markdown / PDF',
-      approvedBy: ['CTO', 'Lead Architect']
-    }
-  },
-  {
-    domain: 'generic',
-    type: 'NOTE',
-    label: 'Nota Rápida / Bitácora',
-    color: 'badge-type-NOTE',
-    template: {
-      name: 'Nota: Recordatorio de despliegue a producción',
-      status: 'active',
-      pinned: true,
-      noteContent: 'Verificar certificados SSL y ejecutar migraciones en la ventana de mantenimiento.',
-      priority: 'HIGH'
-    }
-  }
-];
 
 // App State
 const state = {
@@ -558,13 +11,12 @@ const state = {
   user: JSON.parse(localStorage.getItem('datablock_user') || 'null'),
   blocksTree: [],
   blocksFlat: [],
-  customTypes: JSON.parse(localStorage.getItem('datablock_custom_types') || '[]'),
+  schemasCatalog: { domains: {}, flat: [] },
   collapsedNodeIds: new Set(),
   expandedPayloadIds: new Set(),
   filters: {
     search: '',
-    payload_type: '',
-    payload_type_version: ''
+    payload_type: ''
   }
 };
 
@@ -711,6 +163,21 @@ async function tryAutoLogin() {
 }
 
 // ==========================================
+// Schemas Catalog Fetcher (from schemas/ folder)
+// ==========================================
+async function loadSchemasCatalog() {
+  try {
+    const res = await apiRequest('/api/schemas');
+    if (res.success && res.data) {
+      state.schemasCatalog = res.data;
+      populateTypeSelects();
+    }
+  } catch (err) {
+    console.error('Error fetching schemas catalog:', err);
+  }
+}
+
+// ==========================================
 // Data Fetching & Sync
 // ==========================================
 async function loadData() {
@@ -732,7 +199,6 @@ async function loadData() {
     // 2. Fetch Flat list with filters
     const queryParams = new URLSearchParams();
     if (state.filters.payload_type) queryParams.set('payload_type', state.filters.payload_type);
-    if (state.filters.payload_type_version) queryParams.set('payload_type_version', state.filters.payload_type_version);
     if (state.filters.search) queryParams.set('search', state.filters.search);
 
     const flatRes = await apiRequest(`/api/blocks?${queryParams.toString()}`);
@@ -1039,63 +505,74 @@ function renderTableView() {
 }
 
 // ==========================================
-// Types & Templates Manager Renderer
+// Schemas Catalog View Renderer (Read-Only)
 // ==========================================
-function getAllTypes() {
-  return [...DEFAULT_TYPES, ...state.customTypes];
-}
-
 function renderTypesView() {
   const container = document.getElementById('typesViewContainer');
   if (!container) return;
 
-  const allTypes = getAllTypes();
+  const domains = state.schemasCatalog.domains || {};
+  const domainKeys = Object.keys(domains);
 
   let html = `
-    <div class="action-bar" style="margin-bottom: 1rem;">
+    <div class="action-bar" style="margin-bottom: 1.5rem;">
       <div>
-        <h2>🎨 Catálogo de Tipos Polimórficos y Plantillas</h2>
-        <p>Define plantillas de payload específicas por dominio para crear bloques con un solo clic.</p>
+        <h2>📐 Catálogo Oficial de Esquemas de Payload</h2>
+        <p>Formatos de documento estandarizados e inmutables almacenados directamente en el código del proyecto (<code>schemas/</code>).</p>
       </div>
       <div style="display: flex; gap: 0.5rem;">
         <button class="btn btn-secondary" onclick="openSampleTemplatesModal()">🌱 Cargar Árbol de Dominio</button>
-        <button class="btn btn-primary" onclick="openCreateTypeModal()">+ Crear Nuevo Tipo</button>
+        <button class="btn btn-secondary" onclick="loadSchemasCatalog().then(() => { renderTypesView(); showToast('Esquemas recargados desde disco'); })">🔄 Recargar Archivos</button>
       </div>
     </div>
-    <div class="types-grid">
   `;
 
-  allTypes.forEach(t => {
-    const isCustom = state.customTypes.some(ct => ct.type === t.type);
+  if (domainKeys.length === 0) {
     html += `
-      <div class="type-card">
-        <div class="type-card-header">
-          <span class="badge ${t.color || 'badge-type-CUSTOM'}">${t.type}</span>
-          ${isCustom ? `
-            <button class="btn btn-danger btn-sm" onclick="deleteCustomType('${t.type}')" title="Eliminar tipo personalizado">🗑️</button>
-          ` : '<span style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">' + (t.domain || 'Estándar') + '</span>'}
-        </div>
-        <div><strong>${escapeHtml(t.label || t.type)}</strong></div>
-        <div class="type-card-template">
-          <pre><code>${escapeHtml(JSON.stringify(t.template || {}, null, 2))}</code></pre>
-        </div>
-        <button class="btn btn-secondary btn-sm" onclick="openCreateBlockWithType('${t.type}')">
-          + Crear bloque tipo ${t.type}
-        </button>
+      <div class="empty-state">
+        <div class="empty-state-icon">📂</div>
+        <p>Cargando esquemas de carpetas del proyecto...</p>
       </div>
     `;
-  });
+  } else {
+    domainKeys.forEach(domKey => {
+      const dom = domains[domKey];
+      html += `
+        <div style="margin-bottom: 2rem;">
+          <h3 style="font-size: 1.1rem; margin-bottom: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span>${escapeHtml(dom.label)}</span>
+            <code style="font-size: 0.75rem; color: var(--text-muted);">schemas/${dom.name}/</code>
+          </h3>
+          
+          <div class="types-grid">
+      `;
 
-  html += '</div>';
+      dom.schemas.forEach(s => {
+        const badgeTypeClass = `badge-type-${s.type}` || 'badge-type-CUSTOM';
+        html += `
+          <div class="type-card">
+            <div class="type-card-header">
+              <span class="badge ${badgeTypeClass}">${s.key}</span>
+              <span style="font-size: 0.7rem; font-family: var(--font-mono); color: var(--text-muted);">${s.filename}</span>
+            </div>
+            <div>
+              <strong>${escapeHtml(s.type)}</strong> <span class="badge-version">v${s.version}</span>
+            </div>
+            <div class="type-card-template">
+              <pre><code>${escapeHtml(JSON.stringify(s.template || {}, null, 2))}</code></pre>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="openCreateBlockWithSchema('${s.key}')">
+              ➕ Crear bloque ${s.key}
+            </button>
+          </div>
+        `;
+      });
+
+      html += `</div></div>`;
+    });
+  }
+
   container.innerHTML = html;
-}
-
-function deleteCustomType(typeName) {
-  state.customTypes = state.customTypes.filter(t => t.type !== typeName);
-  localStorage.setItem('datablock_custom_types', JSON.stringify(state.customTypes));
-  populateTypeSelects();
-  renderTypesView();
-  showToast(`Tipo "${typeName}" eliminado`);
 }
 
 // ==========================================
@@ -1148,7 +625,7 @@ const DOMAIN_SAMPLES = {
         body: JSON.stringify({
           parent_id: level1Id,
           payload_type: 'CHARACTER',
-          payload_type_version: 2,
+          payload_type_version: 1,
           payload: {
             name: 'Shadow Necromancer (Dungeon Boss)',
             status: 'active',
@@ -1981,34 +1458,26 @@ function populateParentSelect(selectedParentId = null, currentBlockId = null) {
 function populateTypeSelects() {
   const typeSelect = document.getElementById('blockType');
   const filterTypeSelect = document.getElementById('filterType');
-  const allTypes = getAllTypes();
+  const domains = state.schemasCatalog.domains || {};
+  const flat = state.schemasCatalog.flat || [];
 
   if (typeSelect) {
     const currentVal = typeSelect.value;
     typeSelect.innerHTML = '';
-    
-    const domains = {
-      software: '🚀 Software & Proyectos Ágiles',
-      gamedev: '🎮 Desarrollo de Videojuegos',
-      database: '🗄️ Arquitectura Cloud & DB',
-      film: '🎬 Cine & Producción VFX',
-      edtech: '📚 Educación & E-Learning',
-      ecommerce: '🛒 Comercio & Catálogo',
-      generic: '✨ Genéricos & Documentos',
-      custom: '⭐ Personalizados'
-    };
 
     Object.keys(domains).forEach(domKey => {
-      const matchingTypes = allTypes.filter(t => (t.domain || (state.customTypes.some(ct => ct.type === t.type) ? 'custom' : 'generic')) === domKey);
-      if (matchingTypes.length > 0) {
+      const dom = domains[domKey];
+      if (dom.schemas && dom.schemas.length > 0) {
         const group = document.createElement('optgroup');
-        group.label = domains[domKey];
-        matchingTypes.forEach(t => {
+        group.label = dom.label || dom.name;
+
+        dom.schemas.forEach(s => {
           const opt = document.createElement('option');
-          opt.value = t.type;
-          opt.textContent = `${t.type} - ${t.label || ''}`;
+          opt.value = s.key; // e.g. "TASK.v1", "STORE.v1"
+          opt.textContent = `${s.type} (v${s.version})`;
           group.appendChild(opt);
         });
+
         typeSelect.appendChild(group);
       }
     });
@@ -2019,12 +1488,16 @@ function populateTypeSelects() {
   if (filterTypeSelect) {
     const currentFilter = filterTypeSelect.value;
     filterTypeSelect.innerHTML = '<option value="">Todos los tipos</option>';
-    allTypes.forEach(t => {
+    
+    // Unique types for filter
+    const uniqueTypes = [...new Set(flat.map(s => s.type))];
+    uniqueTypes.forEach(t => {
       const opt = document.createElement('option');
-      opt.value = t.type;
-      opt.textContent = t.type;
+      opt.value = t;
+      opt.textContent = t;
       filterTypeSelect.appendChild(opt);
     });
+
     if (currentFilter) filterTypeSelect.value = currentFilter;
   }
 }
@@ -2032,10 +1505,12 @@ function populateTypeSelects() {
 function handleTypeChange(force = true) {
   const typeSelect = document.getElementById('blockType');
   const payloadInput = document.getElementById('blockPayload');
+  const versionInput = document.getElementById('blockSchemaVersion');
   if (!typeSelect || !payloadInput) return;
 
-  const selectedType = typeSelect.value;
-  const match = getAllTypes().find(t => t.type === selectedType);
+  const selectedKey = typeSelect.value; // e.g. "TASK.v1", "STORE.v1"
+  const flat = state.schemasCatalog.flat || [];
+  const match = flat.find(s => s.key === selectedKey) || flat.find(s => s.type === selectedKey);
 
   const blockId = document.getElementById('blockId')?.value;
   // If editing an existing block and not explicitly forced, don't overwrite
@@ -2043,13 +1518,16 @@ function handleTypeChange(force = true) {
     return;
   }
 
-  if (match && match.template) {
-    payloadInput.value = JSON.stringify(match.template, null, 2);
+  if (match) {
+    if (versionInput) versionInput.value = match.version || 1;
+    if (match.template) {
+      payloadInput.value = JSON.stringify(match.template, null, 2);
+    }
   } else {
+    if (versionInput) versionInput.value = 1;
     payloadInput.value = JSON.stringify({
-      name: `Nuevo Bloque ${selectedType}`,
-      status: 'active',
-      tags: [selectedType]
+      name: `Nuevo Bloque ${selectedKey}`,
+      status: 'active'
     }, null, 2);
   }
 }
@@ -2064,28 +1542,29 @@ function openCreateBlockModal(parentId = null) {
   blockIdInput.value = '';
   title.textContent = parentId ? '➕ Crear Nuevo Bloque Hijo' : '➕ Crear Nuevo Bloque Raíz';
 
-  document.getElementById('blockSchemaVersion').value = 1;
-
   populateTypeSelects();
   populateParentSelect(parentId, null);
 
-  // Set default type
+  // Set default type: TASK.v1 for children, PROJECT.v1 for root
   const typeSelect = document.getElementById('blockType');
   if (typeSelect) {
-    typeSelect.value = parentId ? 'TASK' : 'PROJECT';
+    const defaultKey = parentId ? 'TASK.v1' : 'PROJECT.v1';
+    if (typeSelect.querySelector(`option[value="${defaultKey}"]`)) {
+      typeSelect.value = defaultKey;
+    }
   }
 
-  // Force load example payload template for the selected type
+  // Force load example payload template for the selected schema
   handleTypeChange(true);
 
   dialog.showModal();
 }
 
-function openCreateBlockWithType(typeName) {
+function openCreateBlockWithSchema(schemaKey) {
   openCreateBlockModal(null);
   const typeSelect = document.getElementById('blockType');
   if (typeSelect) {
-    typeSelect.value = typeName;
+    typeSelect.value = schemaKey;
     handleTypeChange(true);
   }
 }
@@ -2104,10 +1583,15 @@ async function openEditBlockModal(blockId) {
     const res = await apiRequest(`/api/blocks/${blockId}`);
     const block = res.data;
 
-    document.getElementById('blockSchemaVersion').value = block.payload_type_version || 1;
-    
     populateTypeSelects();
-    document.getElementById('blockType').value = block.payload_type || 'TASK';
+
+    const expectedKey = `${block.payload_type}.v${block.payload_type_version || 1}`;
+    const typeSelect = document.getElementById('blockType');
+    if (typeSelect.querySelector(`option[value="${expectedKey}"]`)) {
+      typeSelect.value = expectedKey;
+    }
+
+    document.getElementById('blockSchemaVersion').value = block.payload_type_version || 1;
 
     populateParentSelect(block.parent_id, block.id);
 
@@ -2125,9 +1609,20 @@ async function handleBlockFormSubmit(e) {
 
   const blockId = document.getElementById('blockId').value;
   const parentIdVal = document.getElementById('blockParentId').value;
-  const payload_type = document.getElementById('blockType').value;
-  const payload_type_version = parseInt(document.getElementById('blockSchemaVersion').value, 10) || 1;
+  const rawTypeValue = document.getElementById('blockType').value; // e.g. "TASK.v1"
   const payloadStr = document.getElementById('blockPayload').value.trim();
+
+  // Parse type and version from key (e.g. "TASK.v1" -> type="TASK", version=1)
+  let payload_type = rawTypeValue;
+  let payload_type_version = 1;
+
+  const match = rawTypeValue.match(/^(.+?)\.v(\d+)$/i);
+  if (match) {
+    payload_type = match[1].toUpperCase();
+    payload_type_version = parseInt(match[2], 10);
+  } else {
+    payload_type_version = parseInt(document.getElementById('blockSchemaVersion').value, 10) || 1;
+  }
 
   let payload = null;
   if (payloadStr) {
@@ -2188,54 +1683,6 @@ async function confirmDeleteBlock() {
   }
 }
 
-// Custom Type Modal
-function openCreateTypeModal() {
-  const dialog = document.getElementById('createTypeModal');
-  const form = document.getElementById('createTypeForm');
-  form.reset();
-  document.getElementById('newTypeTemplate').value = JSON.stringify({ name: 'Nuevo Elemento', customField: 'valor', priority: 'HIGH' }, null, 2);
-  dialog.showModal();
-}
-
-function handleCreateTypeSubmit(e) {
-  e.preventDefault();
-  const typeName = document.getElementById('newTypeName').value.trim().toUpperCase();
-  const label = document.getElementById('newTypeLabel').value.trim() || typeName;
-  const templateStr = document.getElementById('newTypeTemplate').value.trim();
-
-  if (!typeName) return;
-
-  let template = {};
-  if (templateStr) {
-    try {
-      template = JSON.parse(templateStr);
-    } catch {
-      showToast('Error en el JSON de la plantilla', 'error');
-      return;
-    }
-  }
-
-  const exists = getAllTypes().some(t => t.type === typeName);
-  if (exists) {
-    showToast(`El tipo "${typeName}" ya existe`, 'error');
-    return;
-  }
-
-  state.customTypes.push({
-    domain: 'custom',
-    type: typeName,
-    label,
-    color: 'badge-type-CUSTOM',
-    template
-  });
-
-  localStorage.setItem('datablock_custom_types', JSON.stringify(state.customTypes));
-  document.getElementById('createTypeModal').close();
-  populateTypeSelects();
-  renderTypesView();
-  showToast(`Tipo "${typeName}" agregado exitosamente`, 'success');
-}
-
 // Format Payload Helper Button
 function formatPayloadTextarea() {
   const textarea = document.getElementById('blockPayload');
@@ -2268,6 +1715,7 @@ async function handleLoginSubmit(e) {
       setAuthSession(res.data.user, res.data.token);
       document.getElementById('authModal').close();
       showToast(`¡Bienvenido ${res.data.user.email}!`, 'success');
+      await loadSchemasCatalog();
       await loadData();
     }
   } catch (err) {
@@ -2309,7 +1757,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Filter Event Listeners
   const searchInput = document.getElementById('filterSearch');
   const filterType = document.getElementById('filterType');
-  const filterVersion = document.getElementById('filterVersion');
 
   if (searchInput) {
     let debounceTimer;
@@ -2329,13 +1776,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  if (filterVersion) {
-    filterVersion.addEventListener('change', (e) => {
-      state.filters.payload_type_version = e.target.value;
-      loadData();
-    });
-  }
-
   // Type change listener: ALWAYS trigger dynamic template update on user selection
   const blockTypeSelect = document.getElementById('blockType');
   if (blockTypeSelect) {
@@ -2347,7 +1787,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Form Submissions
   document.getElementById('blockForm')?.addEventListener('submit', handleBlockFormSubmit);
   document.getElementById('loginForm')?.addEventListener('submit', handleLoginSubmit);
-  document.getElementById('createTypeForm')?.addEventListener('submit', handleCreateTypeSubmit);
 
   // Keyboard shortcut for SQL Console (Ctrl + Enter)
   document.addEventListener('keydown', (e) => {
@@ -2369,9 +1808,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   updateAuthUI();
-  populateTypeSelects();
 
   // Try auto-login with session or seed admin
   await tryAutoLogin();
+  await loadSchemasCatalog();
   await loadData();
 });

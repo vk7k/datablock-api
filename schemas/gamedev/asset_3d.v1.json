@@ -1,0 +1,10 @@
+{
+  "name": "Malla 3D Gárgola Jefe con Texturas PBR 4K",
+  "status": "completed",
+  "polygonCount": 32500,
+  "lodLevels": 4,
+  "textureResolution": "4K PBR",
+  "materials": ["Albedo", "Normal", "Roughness", "Metallic", "Emission"],
+  "fileUrl": "https://cdn.uxcribe.com/3d/gargoyle_boss.fbx",
+  "rigged": true
+}

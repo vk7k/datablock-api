@@ -1,0 +1,9 @@
+{
+  "name": "table: blocks (Universal Polymorphic Node)",
+  "status": "completed",
+  "tableName": "blocks",
+  "storageEngine": "InnoDB",
+  "rowFormat": "DYNAMIC",
+  "estimatedRows": 500000,
+  "primaryKey": "id"
+}

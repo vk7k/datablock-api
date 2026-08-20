@@ -1,0 +1,9 @@
+{
+  "name": "Riesgo: Demora en la entrega de suministros externos",
+  "status": "active",
+  "probability": "MEDIUM",
+  "impact": "HIGH",
+  "risk_score": 7.5,
+  "mitigation_plan": "Establecer contratos con proveedores de respaldo y cláusulas SLA estrictas.",
+  "owner": "Gestor de Riesgos"
+}

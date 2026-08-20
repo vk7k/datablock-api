@@ -1,0 +1,7 @@
+{
+  "name": "schema: block_system_production",
+  "status": "completed",
+  "defaultCharset": "utf8mb4",
+  "defaultCollation": "utf8mb4_unicode_ci",
+  "enforceForeignKeys": true
+}

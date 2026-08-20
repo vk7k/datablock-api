@@ -1,0 +1,10 @@
+{
+  "name": "Elemento Polimórfico Genérico",
+  "status": "active",
+  "description": "Bloque base con atributos libres",
+  "tags": [
+    "Universal",
+    "Custom"
+  ],
+  "customAttribute": "Cualquier valor JSON válido"
+}

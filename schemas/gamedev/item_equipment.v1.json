@@ -1,0 +1,12 @@
+{
+  "name": "Espada Devoradora de Almas +5",
+  "status": "completed",
+  "rarity": "LEGENDARY",
+  "itemSlot": "MAIN_HAND",
+  "attackPower": 320,
+  "durability": 500,
+  "specialEffects": [
+    "15% Robo de Vida",
+    "+20 Daño de Sombra"
+  ]
+}

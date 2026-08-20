@@ -1,0 +1,10 @@
+{
+  "name": "Factura Electrónica F-004921",
+  "status": "completed",
+  "invoiceNumber": "F-004921",
+  "customerName": "Tech Innovators SpA",
+  "taxId": "76.123.456-7",
+  "netAmount": 5700.00,
+  "taxAmount": 1083.00,
+  "totalAmount": 6783.00
+}

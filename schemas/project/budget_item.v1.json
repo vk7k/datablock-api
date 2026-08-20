@@ -1,0 +1,10 @@
+{
+  "name": "Partida Presupuestaria: Licenciamiento y Servicios Cloud",
+  "status": "approved",
+  "category": "INFRAESTRUCTURA",
+  "cost_center": "CC-OPS-2026",
+  "estimated_amount": 25000,
+  "actual_amount": 23400,
+  "currency": "USD",
+  "approved_by": "Director Financiero"
+}

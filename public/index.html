@@ -25,23 +25,21 @@
           <span>🌳</span> Árbol Jerárquico
         </button>
         <button class="nav-tab-btn" data-tab="table">
-          <span>📋</span> Lista y Filtros
+          <span>📋</span> Vista Tabla
         </button>
         <button class="nav-tab-btn" data-tab="types">
-          <span>🎨</span> Tipos y Plantillas
+          <span>📐</span> Esquemas de Payload
         </button>
         <button class="nav-tab-btn" data-tab="database">
           <span>🗄️</span> Visor MySQL
         </button>
       </nav>
 
-      <!-- User Info & Global Actions -->
-      <div class="nav-actions">
-        <a href="/api/docs" target="_blank" class="btn btn-secondary btn-sm" title="Ver Swagger UI">
-          <span>📑</span> Swagger Docs
-        </a>
+      <div class="user-profile-widget">
         <div id="userBadge" class="user-badge" style="display: none;"></div>
-        <button id="authBtn" class="btn btn-secondary btn-sm">🔑 Ingresar</button>
+        <button id="authBtn" class="btn btn-secondary btn-sm" onclick="openAuthModal()">
+          🔑 Ingresar
+        </button>
       </div>
     </header>
 
@@ -50,21 +48,21 @@
       <!-- Action Bar -->
       <div class="action-bar" id="blocksActionBar">
         <div class="action-bar-title">
-          <h1>Gestor de Bloques Polimórficos (STI)</h1>
-          <p>Crea, edita, organiza relaciones jerárquicas y gestiona metadatos JSON para diagramas de Gantt y WBS.</p>
+          <h1>Universal DataBlock Studio</h1>
+          <p>Nodos polimórficos universales con esquemas dinámicos basados en archivos.</p>
         </div>
         <div class="action-buttons">
-          <button id="refreshBtn" class="btn btn-secondary" onclick="loadData()">
-            <span>🔄</span> Recargar
+          <button class="btn btn-secondary" onclick="toggleExpandAllTree()" id="expandAllBtn" title="Expandir/Contraer Todo">
+            ↔️ Expandir/Contraer
           </button>
-          <button class="btn btn-secondary" onclick="openSampleTemplatesModal()" title="Cargar jerarquías temáticas de ejemplo (Juegos, Bases de Datos, etc.)">
-            <span>🌱</span> Plantillas de Dominio
+          <button class="btn btn-secondary" onclick="openSampleTemplatesModal()" title="Cargar jerarquías predefinidas">
+            🌱 Plantillas de Dominio
           </button>
-          <button class="btn btn-secondary" onclick="toggleExpandAllTree()">
-            <span>🔀</span> Expandir / Contraer
+          <button class="btn btn-secondary" onclick="loadData()" id="refreshBtn" title="Recargar datos">
+            🔄 Refrescar
           </button>
           <button class="btn btn-primary" onclick="openCreateBlockModal(null)">
-            <span>➕</span> Nuevo Bloque Raíz
+            <span>➕</span> Crear Bloque Raíz
           </button>
         </div>
       </div>
@@ -76,18 +74,9 @@
           <input type="text" id="filterSearch" class="form-control" placeholder="Buscar por texto o atributo...">
         </div>
         <div class="filter-group">
-          <label for="filterType">Tipo de Payload (payload_type):</label>
+          <label for="filterType">Tipo de Payload:</label>
           <select id="filterType" class="select-control">
             <option value="">Todos los tipos</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label for="filterVersion">Versión (payload_type_version):</label>
-          <select id="filterVersion" class="select-control">
-            <option value="">Todas las versiones</option>
-            <option value="1">v1</option>
-            <option value="2">v2</option>
-            <option value="3">v3</option>
           </select>
         </div>
       </div>
@@ -98,7 +87,7 @@
       <!-- View 2: Table / Flat List -->
       <section id="tableViewContainer" style="display: none;"></section>
 
-      <!-- View 3: Types & Template Manager -->
+      <!-- View 3: Schemas & Template Catalog -->
       <section id="typesViewContainer" style="display: none;"></section>
 
       <!-- View 4: MySQL Explorer & Connection Config -->
@@ -114,6 +103,7 @@
     </div>
     <form id="blockForm">
       <input type="hidden" id="blockId">
+      <input type="hidden" id="blockSchemaVersion" value="1">
       <div class="modal-body">
         <!-- Parent Selector (Hierarchy) -->
         <div class="form-group">
@@ -124,15 +114,10 @@
           <span class="form-help">Selecciona un bloque existente para anidar este elemento o déjalo vacío para nodo raíz.</span>
         </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label for="blockType">🏷️ Tipo de Payload (payload_type) *:</label>
-            <select id="blockType" class="select-control" required></select>
-          </div>
-          <div class="form-group">
-            <label for="blockSchemaVersion">🔢 Versión (payload_type_version) *:</label>
-            <input type="number" id="blockSchemaVersion" class="form-control" value="1" min="1" step="1" required>
-          </div>
+        <div class="form-group">
+          <label for="blockType">🏷️ Tipo y Versión de Payload (schemas/) *:</label>
+          <select id="blockType" class="select-control" required></select>
+          <span class="form-help">Al cambiar de opción, se inyecta automáticamente la plantilla oficial de schemas/ correspondiente.</span>
         </div>
 
         <div class="form-group">

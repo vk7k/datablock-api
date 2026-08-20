@@ -1,0 +1,12 @@
+{
+  "name": "MegaTech Cloud Storefront",
+  "status": "in_progress",
+  "currency": "USD",
+  "operatingCountry": "CL / Global",
+  "taxRatePercent": 19.0,
+  "paymentGateways": [
+    "Stripe",
+    "PayPal",
+    "Webpay Plus"
+  ]
+}

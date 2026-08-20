@@ -1,0 +1,8 @@
+{
+  "name": "Migration 20260820_001_add_payload_type_version",
+  "status": "applied",
+  "sequenceNumber": 14,
+  "upSql": "ALTER TABLE blocks ADD COLUMN payload_type VARCHAR(50) NOT NULL;",
+  "downSql": "ALTER TABLE blocks DROP COLUMN payload_type;",
+  "executionTimeMs": 120
+}

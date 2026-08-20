@@ -1,0 +1,7 @@
+{
+  "name": "Nota: Recordatorio de despliegue a producción",
+  "status": "active",
+  "pinned": true,
+  "noteContent": "Verificar certificados SSL y ejecutar migraciones en la ventana de mantenimiento.",
+  "priority": "HIGH"
+}

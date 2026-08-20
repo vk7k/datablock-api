@@ -1,0 +1,11 @@
+{
+  "name": "Módulo 3: Consultas JSON Indexadas y Single Table Inheritance",
+  "status": "in_progress",
+  "moduleIndex": 3,
+  "topics": [
+    "JSON Operators en MySQL 8",
+    "Generación de Árboles O(N)",
+    "Búsquedas de alta velocidad"
+  ],
+  "durationMinutes": 180
+}

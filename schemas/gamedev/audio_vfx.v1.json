@@ -1,0 +1,9 @@
+{
+  "name": "SFX: Explosión Mágica de Oscuridad",
+  "status": "completed",
+  "sampleRateHz": 48000,
+  "channels": "5.1 Surround",
+  "durationSeconds": 2.8,
+  "audioFormat": "WAV 24-bit",
+  "spatialAudioFalloffMeters": 45
+}

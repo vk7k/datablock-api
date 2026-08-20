@@ -1,0 +1,14 @@
+{
+  "name": "Eldoria: Shadows of Eternity",
+  "status": "in_progress",
+  "title": "Eldoria: Shadows of Eternity",
+  "genre": "Action RPG / Open World",
+  "targetEngine": "Unreal Engine 5.4",
+  "targetPlatforms": ["PC (Steam)", "PlayStation 5", "Xbox Series X"],
+  "leadDesigner": "Sarah Jenkins",
+  "targetReleaseYear": 2027,
+  "gantt": {
+    "color": "#f472b6",
+    "criticalPath": true
+  }
+}

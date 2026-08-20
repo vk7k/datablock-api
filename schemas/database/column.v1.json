@@ -1,0 +1,8 @@
+{
+  "name": "column: payload (Dynamic JSON Document)",
+  "status": "completed",
+  "columnName": "payload",
+  "dataType": "JSON",
+  "isNullable": true,
+  "maxSizeBytes": 10485760
+}

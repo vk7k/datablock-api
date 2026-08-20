@@ -138,7 +138,26 @@ async function runTests() {
     }
   });
 
-  // 6. Live Database Connectivity
+  // 6. SchemaService Filesystem Dynamic Discovery
+  await test('File-based Schemas Catalog Service (schemas/)', () => {
+    const schemaService = require('../src/services/schema.service');
+    const catalog = schemaService.getSchemasCatalog();
+    
+    assert(catalog && typeof catalog.domains === 'object', 'Catalog should contain domains object');
+    assert(catalog.flat.length >= 30, `Catalog should find at least 30 schema templates (found ${catalog.flat.length})`);
+    
+    // Check specific schemas
+    const taskSchema = schemaService.getSchema('TASK', 1);
+    assert(taskSchema && taskSchema.type === 'TASK', 'TASK v1 schema should exist');
+    assert(taskSchema.domain === 'project', 'TASK should belong to project domain');
+    assert(typeof taskSchema.template === 'object', 'TASK should have a valid JSON template');
+    
+    const storeSchema = schemaService.getSchema('STORE', 1);
+    assert(storeSchema && storeSchema.type === 'STORE', 'STORE v1 schema should exist');
+    assert(storeSchema.domain === 'ecommerce', 'STORE should belong to ecommerce domain');
+  });
+
+  // 7. Live Database Connectivity
   await test('Database Connection Check', async () => {
     try {
       await prisma.$connect();

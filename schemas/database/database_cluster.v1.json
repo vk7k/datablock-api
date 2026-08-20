@@ -1,0 +1,14 @@
+{
+  "name": "Aurora MySQL 8.4 Production Cluster",
+  "status": "in_progress",
+  "engine": "MySQL 8.4 Community LTS",
+  "topology": "Multi-AZ Primary-Replica",
+  "nodeCount": 3,
+  "memoryGB": 64,
+  "storageGB: 500": 500,
+  "iops": 12000,
+  "gantt": {
+    "color": "#0ea5e9",
+    "criticalPath": true
+  }
+}

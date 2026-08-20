@@ -1,0 +1,12 @@
+{
+  "name": "Toma 12A: Primer Plano Ojo Cibernético",
+  "status": "completed",
+  "shotCode": "SC12_SH01",
+  "lens": "85mm Anamorphic T1.8",
+  "cameraRig": "Steadicam Orbit + Tilt Up",
+  "approvedTakes": [
+    3,
+    7
+  ],
+  "vfxRequired": true
+}

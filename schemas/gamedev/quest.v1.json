@@ -1,0 +1,14 @@
+{
+  "name": "Misión: Purificar el Altar Sagrado",
+  "status": "completed",
+  "questType": "MAIN_STORY",
+  "xpReward": 3000,
+  "goldReward": 750,
+  "requiredLevel": 4,
+  "objectives": [
+    "Encontrar la Llave de Obsidiana",
+    "Derrotar a los 3 Guardianes del Círculo",
+    "Interactuar con el Altar Sagrado"
+  ],
+  "lootTable": ["Obsidian Relic", "Elixir of Mana x5"]
+}

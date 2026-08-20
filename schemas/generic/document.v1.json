@@ -1,0 +1,11 @@
+{
+  "name": "Especificación de Requerimientos v1.0",
+  "status": "completed",
+  "author": "Product Owner",
+  "wordCount": 3400,
+  "documentFormat": "Markdown / PDF",
+  "approvedBy": [
+    "CTO",
+    "Lead Architect"
+  ]
+}

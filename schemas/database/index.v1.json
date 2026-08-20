@@ -1,0 +1,10 @@
+{
+  "name": "index: idx_blocks_payload_type",
+  "status": "completed",
+  "indexType": "BTREE",
+  "indexedColumns": [
+    "payload_type"
+  ],
+  "isUnique": false,
+  "cardinality": 85000
+}

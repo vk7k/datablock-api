@@ -1,0 +1,13 @@
+{
+  "name": "Fase 1: Diagnóstico y Planificación",
+  "status": "in_progress",
+  "start_date": "2026-09-01T00:00:00.000Z",
+  "end_date": "2026-09-30T00:00:00.000Z",
+  "phase_number": 1,
+  "phase_lead": "Alex Rivera",
+  "objectives": [
+    "Levantamiento de requerimientos y alcance",
+    "Definición de cronograma y matriz de riesgos",
+    "Aprobación formal del comité directivo"
+  ]
+}

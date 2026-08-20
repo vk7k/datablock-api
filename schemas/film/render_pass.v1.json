@@ -1,0 +1,13 @@
+{
+  "name": "Render Pass: Deep Beauty & Volumetric Light",
+  "status": "completed",
+  "renderEngine": "RenderMan 26 / ACEScg",
+  "samplesPerPixel": 2048,
+  "layers": [
+    "Beauty",
+    "Cryptomatte",
+    "Z-Depth",
+    "VolumetricFog"
+  ],
+  "outputResolution": "7680x3213 (8K DCI)"
+}

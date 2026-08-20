@@ -1,0 +1,15 @@
+{
+  "name": "Proyecto Integral de Modernización",
+  "status": "in_progress",
+  "start_date": "2026-09-01T00:00:00.000Z",
+  "end_date": "2026-11-30T00:00:00.000Z",
+  "budget": 150000,
+  "currency": "USD",
+  "client": "Corporación Global",
+  "project_manager": "Sarah Jenkins",
+  "priority": "HIGH",
+  "gantt": {
+    "color": "#38bdf8",
+    "criticalPath": true
+  }
+}

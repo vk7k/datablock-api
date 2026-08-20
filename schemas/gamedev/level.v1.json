@@ -1,0 +1,10 @@
+{
+  "name": "Act I: Catacumbas Susurrantes",
+  "status": "in_progress",
+  "levelIndex": 1,
+  "biome": "Underground Catacombs & Crypts",
+  "targetFPS": 60,
+  "lightScenario": "Dynamic Volumetric Fog + Torches",
+  "worldBoundsMeters": { "x": 500, "y": 500, "z": 80 },
+  "musicTrack": "BGM_Catacombs_Ambience.ogg"
+}

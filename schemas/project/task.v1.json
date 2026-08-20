@@ -1,0 +1,10 @@
+{
+  "name": "Levantamiento de Requerimientos y Entrevistas",
+  "status": "completed",
+  "start_date": "2026-09-01T00:00:00.000Z",
+  "due_date": "2026-09-10T00:00:00.000Z",
+  "assignee": "Elena Vance",
+  "progress": 100,
+  "priority": "HIGH",
+  "tags": ["Planificación", "Requerimientos"]
+}
