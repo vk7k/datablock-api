@@ -2,6 +2,7 @@ const express = require('express');
 const authRoutes = require('./auth.routes');
 const userRoutes = require('./user.routes');
 const blockRoutes = require('./block.routes');
+const databaseRoutes = require('./database.routes');
 const { successResponse } = require('../utils/response.util');
 
 const router = express.Router();
@@ -20,5 +21,6 @@ router.get('/health', (req, res) => {
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/blocks', blockRoutes);
+router.use('/database', databaseRoutes);
 
 module.exports = router;

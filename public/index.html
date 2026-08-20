@@ -30,6 +30,9 @@
         <button class="nav-tab-btn" data-tab="types">
           <span>🎨</span> Tipos y Plantillas
         </button>
+        <button class="nav-tab-btn" data-tab="database">
+          <span>🗄️</span> Visor MySQL
+        </button>
       </nav>
 
       <!-- User Info & Global Actions -->
@@ -45,7 +48,7 @@
     <!-- Main Content Area -->
     <main class="main-content" id="mainContentArea">
       <!-- Action Bar -->
-      <div class="action-bar">
+      <div class="action-bar" id="blocksActionBar">
         <div class="action-bar-title">
           <h1>Gestor de Bloques Polimórficos (STI)</h1>
           <p>Crea, edita, organiza relaciones jerárquicas y gestiona metadatos JSON para diagramas de Gantt y WBS.</p>
@@ -67,7 +70,7 @@
       </div>
 
       <!-- Filters Bar (Visible for Table and Tree) -->
-      <div class="filters-card">
+      <div class="filters-card" id="blocksFiltersCard">
         <div class="filter-group">
           <label for="filterSearch">🔍 Buscar:</label>
           <input type="text" id="filterSearch" class="form-control" placeholder="Filtrar por nombre...">
@@ -107,6 +110,9 @@
 
       <!-- View 3: Types & Template Manager -->
       <section id="typesViewContainer" style="display: none;"></section>
+
+      <!-- View 4: MySQL Explorer & Connection Config -->
+      <section id="databaseViewContainer" style="display: none;"></section>
     </main>
   </div>
 

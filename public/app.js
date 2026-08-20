@@ -1,6 +1,7 @@
 /**
  * DataBlock Studio - Single Page Application Client
- * Full CRUD, Hierarchical Tree, Relational Parent Editor, Polymorphic Domain Types & Sample Seeders
+ * Full CRUD, Hierarchical Tree, Relational Parent Editor, Polymorphic Domain Types,
+ * and Comprehensive MySQL Database Viewer & Connection Configurator
  */
 
 // Polymorphic Block Types grouped by Domain with Realistic JSON Payload Templates
@@ -358,7 +359,7 @@ const DEFAULT_TYPES = [
 
 // App State
 const state = {
-  activeTab: 'tree', // 'tree' | 'table' | 'types'
+  activeTab: 'tree', // 'tree' | 'table' | 'types' | 'database'
   token: localStorage.getItem('datablock_token') || null,
   user: JSON.parse(localStorage.getItem('datablock_user') || 'null'),
   blocksTree: [],
@@ -372,6 +373,26 @@ const state = {
     status: '',
     schema_version: ''
   }
+};
+
+// MySQL Explorer State
+const dbState = {
+  activeSubtab: 'tables', // 'tables' | 'sql' | 'config'
+  status: null,
+  tables: [],
+  selectedTable: 'blocks',
+  tableSchema: null,
+  tableData: null,
+  tableActiveView: 'data', // 'data' | 'schema'
+  tablePage: 1,
+  tableLimit: 50,
+  tableSearch: '',
+  sqlQuery: 'SELECT * FROM blocks LIMIT 10;',
+  sqlResult: null,
+  sqlLoading: false,
+  testConnUrl: 'mysql://root:@localhost:3306/block_system',
+  testConnResult: null,
+  testConnLoading: false
 };
 
 // ==========================================
@@ -502,6 +523,11 @@ async function tryAutoLogin() {
 async function loadData() {
   if (!state.token) return;
 
+  if (state.activeTab === 'database') {
+    await loadDatabaseView();
+    return;
+  }
+
   const refreshBtn = document.getElementById('refreshBtn');
   if (refreshBtn) refreshBtn.classList.add('loading');
 
@@ -535,15 +561,25 @@ function renderApp() {
   const treeView = document.getElementById('treeViewContainer');
   const tableView = document.getElementById('tableViewContainer');
   const typesView = document.getElementById('typesViewContainer');
+  const dbView = document.getElementById('databaseViewContainer');
+  const blocksActionBar = document.getElementById('blocksActionBar');
+  const blocksFiltersCard = document.getElementById('blocksFiltersCard');
 
   // Update tabs active class
   document.querySelectorAll('.nav-tab-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.tab === state.activeTab);
   });
 
+  // Toggle sections visibility
   if (treeView) treeView.style.display = state.activeTab === 'tree' ? 'block' : 'none';
   if (tableView) tableView.style.display = state.activeTab === 'table' ? 'block' : 'none';
   if (typesView) typesView.style.display = state.activeTab === 'types' ? 'block' : 'none';
+  if (dbView) dbView.style.display = state.activeTab === 'database' ? 'block' : 'none';
+
+  // Toggle blocks-specific action bar & filters
+  const isBlockView = state.activeTab === 'tree' || state.activeTab === 'table' || state.activeTab === 'types';
+  if (blocksActionBar) blocksActionBar.style.display = isBlockView ? 'flex' : 'none';
+  if (blocksFiltersCard) blocksFiltersCard.style.display = (state.activeTab === 'tree' || state.activeTab === 'table') ? 'flex' : 'none';
 
   if (!state.token) {
     renderUnauthenticated();
@@ -553,6 +589,7 @@ function renderApp() {
   if (state.activeTab === 'tree') renderTreeView();
   if (state.activeTab === 'table') renderTableView();
   if (state.activeTab === 'types') renderTypesView();
+  if (state.activeTab === 'database') renderDatabaseView();
 }
 
 function renderUnauthenticated() {
@@ -610,7 +647,6 @@ function renderTreeNode(block, depth = 0) {
   const startDateStr = block.start_date ? new Date(block.start_date).toLocaleDateString() : '';
   const endDateStr = block.end_date ? new Date(block.end_date).toLocaleDateString() : '';
   
-  // Calculate days duration
   let daysDuration = '';
   if (block.start_date && block.end_date) {
     const diff = Math.ceil((new Date(block.end_date) - new Date(block.start_date)) / (1000 * 60 * 60 * 24));
@@ -653,7 +689,6 @@ function renderTreeNode(block, depth = 0) {
       </div>
   `;
 
-  // Payload Drawer
   if (block.payload && isPayloadExpanded) {
     html += `
       <div class="payload-preview">
@@ -662,7 +697,6 @@ function renderTreeNode(block, depth = 0) {
     `;
   }
 
-  // Children
   if (hasChildren && !isCollapsed) {
     html += '<div class="tree-children">';
     block.children.forEach(child => {
@@ -850,7 +884,6 @@ const DOMAIN_SAMPLES = {
       const now = new Date();
       const addDays = (d, days) => new Date(d.getTime() + days * 24 * 60 * 60 * 1000).toISOString();
 
-      // 1. Root Game
       const root = await apiRequest('/api/blocks', {
         method: 'POST',
         body: JSON.stringify({
@@ -872,7 +905,6 @@ const DOMAIN_SAMPLES = {
 
       const gameId = root.data.id;
 
-      // 2. Level 1 (Act I)
       const level1 = await apiRequest('/api/blocks', {
         method: 'POST',
         body: JSON.stringify({
@@ -893,7 +925,6 @@ const DOMAIN_SAMPLES = {
       });
       const level1Id = level1.data.id;
 
-      // 2.1 Boss under Level 1
       await apiRequest('/api/blocks', {
         method: 'POST',
         body: JSON.stringify({
@@ -915,7 +946,6 @@ const DOMAIN_SAMPLES = {
         })
       });
 
-      // 2.2 Quest under Level 1
       await apiRequest('/api/blocks', {
         method: 'POST',
         body: JSON.stringify({
@@ -936,7 +966,6 @@ const DOMAIN_SAMPLES = {
         })
       });
 
-      // 2.3 3D Asset under Level 1
       await apiRequest('/api/blocks', {
         method: 'POST',
         body: JSON.stringify({
@@ -956,7 +985,6 @@ const DOMAIN_SAMPLES = {
         })
       });
 
-      // 3. Level 2 (Act II)
       await apiRequest('/api/blocks', {
         method: 'POST',
         body: JSON.stringify({
@@ -985,7 +1013,6 @@ const DOMAIN_SAMPLES = {
       const now = new Date();
       const addDays = (d, days) => new Date(d.getTime() + days * 24 * 60 * 60 * 1000).toISOString();
 
-      // 1. Root Cluster
       const root = await apiRequest('/api/blocks', {
         method: 'POST',
         body: JSON.stringify({
@@ -1007,7 +1034,6 @@ const DOMAIN_SAMPLES = {
       });
       const clusterId = root.data.id;
 
-      // 2. Schema
       const schema = await apiRequest('/api/blocks', {
         method: 'POST',
         body: JSON.stringify({
@@ -1027,7 +1053,6 @@ const DOMAIN_SAMPLES = {
       });
       const schemaId = schema.data.id;
 
-      // 2.1 Table 'blocks'
       const tableBlocks = await apiRequest('/api/blocks', {
         method: 'POST',
         body: JSON.stringify({
@@ -1048,7 +1073,6 @@ const DOMAIN_SAMPLES = {
       });
       const tableBlocksId = tableBlocks.data.id;
 
-      // 2.1.1 Column 'payload'
       await apiRequest('/api/blocks', {
         method: 'POST',
         body: JSON.stringify({
@@ -1068,7 +1092,6 @@ const DOMAIN_SAMPLES = {
         })
       });
 
-      // 2.1.2 Index
       await apiRequest('/api/blocks', {
         method: 'POST',
         body: JSON.stringify({
@@ -1088,7 +1111,6 @@ const DOMAIN_SAMPLES = {
         })
       });
 
-      // 2.2 Migration
       await apiRequest('/api/blocks', {
         method: 'POST',
         body: JSON.stringify({
@@ -1215,6 +1237,587 @@ async function loadSampleTree(domainKey) {
     await loadData();
   } catch (err) {
     showToast('Error al generar plantilla: ' + err.message, 'error');
+  }
+}
+
+// ==========================================
+// MySQL Database Viewer & Configurator
+// ==========================================
+async function loadDatabaseView() {
+  if (!state.token) return;
+
+  try {
+    const [statusRes, tablesRes] = await Promise.all([
+      apiRequest('/api/database/status'),
+      apiRequest('/api/database/tables')
+    ]);
+
+    dbState.status = statusRes.data;
+    dbState.tables = tablesRes.data || [];
+
+    if (dbState.tables.length > 0 && !dbState.selectedTable) {
+      dbState.selectedTable = dbState.tables[0].name;
+    }
+
+    if (dbState.selectedTable) {
+      await loadTableDetails(dbState.selectedTable);
+    }
+
+    renderApp();
+  } catch (err) {
+    showToast('Error al cargar datos de MySQL: ' + err.message, 'error');
+  }
+}
+
+async function loadTableDetails(tableName, view = null, page = 1) {
+  dbState.selectedTable = tableName;
+  if (view) dbState.tableActiveView = view;
+  dbState.tablePage = page;
+
+  try {
+    if (dbState.tableActiveView === 'schema') {
+      const schemaRes = await apiRequest(`/api/database/tables/${tableName}/schema`);
+      dbState.tableSchema = schemaRes.data;
+    } else {
+      const dataRes = await apiRequest(`/api/database/tables/${tableName}/data?page=${page}&limit=${dbState.tableLimit}`);
+      dbState.tableData = dataRes.data;
+    }
+    renderDatabaseView();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+function setDbSubtab(subtab) {
+  dbState.activeSubtab = subtab;
+  renderDatabaseView();
+}
+
+function renderDatabaseView() {
+  const container = document.getElementById('databaseViewContainer');
+  if (!container) return;
+
+  const st = dbState.status;
+  if (!st) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⏳</div><p>Cargando información de MySQL...</p></div>';
+    return;
+  }
+
+  let html = `
+    <!-- Top Metrics Bar -->
+    <div class="db-metrics-grid">
+      <div class="db-metric-card">
+        <span class="db-metric-label">Base de Datos Activa</span>
+        <div class="db-metric-value">🗄️ ${escapeHtml(st.database)}</div>
+        <small style="color: var(--text-muted); font-size: 0.72rem;">Motor: MySQL ${escapeHtml(st.version)}</small>
+      </div>
+
+      <div class="db-metric-card">
+        <span class="db-metric-label">Tablas & Registros</span>
+        <div class="db-metric-value">📊 ${st.totalTables} <span style="font-size: 0.9rem; font-weight: normal; color: var(--text-secondary);">tablas</span></div>
+        <small style="color: var(--text-muted); font-size: 0.72rem;">${st.totalRows.toLocaleString()} filas totales (${st.totalSizeMB} MB)</small>
+      </div>
+
+      <div class="db-metric-card">
+        <span class="db-metric-label">Tiempo Activo (Uptime)</span>
+        <div class="db-metric-value">⏱️ ${escapeHtml(st.uptimeFormatted || '0s')}</div>
+        <small style="color: var(--text-muted); font-size: 0.72rem;">${st.threadsConnected} conexiones activas</small>
+      </div>
+
+      <div class="db-metric-card">
+        <span class="db-metric-label">Seguridad & SSL</span>
+        <div class="db-metric-value">
+          ${st.config?.ssl 
+            ? '<span style="color: #34d399; font-size: 1rem;">🔒 SSL Activo</span>' 
+            : '<span style="color: #fbbf24; font-size: 1rem;">🔓 Estándar (Local)</span>'}
+        </div>
+        <small style="color: var(--text-muted); font-size: 0.72rem;">Host: ${escapeHtml(st.config?.host || 'localhost')}:${st.config?.port || 3306}</small>
+      </div>
+    </div>
+
+    <!-- Sub-navigation Tabs -->
+    <div class="db-subnav">
+      <button class="db-subnav-btn ${dbState.activeSubtab === 'tables' ? 'active' : ''}" onclick="setDbSubtab('tables')">
+        <span>🗃️</span> Explorador de Tablas
+      </button>
+      <button class="db-subnav-btn ${dbState.activeSubtab === 'sql' ? 'active' : ''}" onclick="setDbSubtab('sql')">
+        <span>⚡</span> Consola SQL
+      </button>
+      <button class="db-subnav-btn ${dbState.activeSubtab === 'config' ? 'active' : ''}" onclick="setDbSubtab('config')">
+        <span>⚙️</span> Configuración & Test de Conexión
+      </button>
+    </div>
+  `;
+
+  // Render Active Subtab Content
+  if (dbState.activeSubtab === 'tables') {
+    html += renderDbTablesView();
+  } else if (dbState.activeSubtab === 'sql') {
+    html += renderDbSqlView();
+  } else if (dbState.activeSubtab === 'config') {
+    html += renderDbConfigView();
+  }
+
+  container.innerHTML = html;
+}
+
+function renderDbTablesView() {
+  const currentTable = dbState.tables.find(t => t.name === dbState.selectedTable) || dbState.tables[0];
+  const tableName = currentTable ? currentTable.name : 'blocks';
+
+  let html = `
+    <div class="db-layout">
+      <!-- Left Sidebar: Tables List -->
+      <div class="db-sidebar">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong>Tablas (${dbState.tables.length})</strong>
+          <button class="btn btn-secondary btn-sm" onclick="loadDatabaseView()" title="Refrescar">🔄</button>
+        </div>
+        <input type="text" class="form-control" placeholder="Filtrar tablas..." oninput="filterDbTables(this.value)" style="font-size: 0.8rem; padding: 0.4rem 0.6rem;">
+        
+        <div class="db-table-list" id="dbTableList">
+  `;
+
+  dbState.tables.forEach(t => {
+    const isSelected = t.name === dbState.selectedTable;
+    html += `
+      <div class="db-table-item ${isSelected ? 'active' : ''}" onclick="loadTableDetails('${t.name}')">
+        <span>📄 ${escapeHtml(t.name)}</span>
+        <span class="badge badge-version" style="font-size: 0.68rem;">${t.rowCount} filas</span>
+      </div>
+    `;
+  });
+
+  html += `
+        </div>
+      </div>
+
+      <!-- Right Main Panel: Table Details -->
+      <div class="db-content">
+        <div class="db-content-header">
+          <div>
+            <h2 style="font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+              <span>📄 Tabla: <strong>${escapeHtml(tableName)}</strong></span>
+              <span class="badge badge-type-PROJECT">${currentTable?.engine || 'InnoDB'}</span>
+            </h2>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">
+              Collation: ${currentTable?.collation || 'utf8mb4'} • Tamaño: ${currentTable?.totalSizeKB || 0} KB • ${currentTable?.rowCount || 0} registros
+            </p>
+          </div>
+
+          <div style="display: flex; gap: 0.4rem;">
+            <button class="btn btn-sm ${dbState.tableActiveView === 'data' ? 'btn-primary' : 'btn-secondary'}" onclick="loadTableDetails('${tableName}', 'data')">
+              📊 Ver Datos (${currentTable?.rowCount || 0})
+            </button>
+            <button class="btn btn-sm ${dbState.tableActiveView === 'schema' ? 'btn-primary' : 'btn-secondary'}" onclick="loadTableDetails('${tableName}', 'schema')">
+              📋 Ver Estructura
+            </button>
+          </div>
+        </div>
+  `;
+
+  // Render Table Data or Schema
+  if (dbState.tableActiveView === 'schema') {
+    html += renderTableSchemaView();
+  } else {
+    html += renderTableDataView();
+  }
+
+  html += '</div></div>';
+  return html;
+}
+
+function filterDbTables(query) {
+  const container = document.getElementById('dbTableList');
+  if (!container) return;
+  const q = query.toLowerCase().trim();
+  const items = container.querySelectorAll('.db-table-item');
+  items.forEach(el => {
+    const text = el.textContent.toLowerCase();
+    el.style.display = text.includes(q) ? 'flex' : 'none';
+  });
+}
+
+function renderTableSchemaView() {
+  const schema = dbState.tableSchema;
+  if (!schema) return '<p style="color: var(--text-muted);">Cargando estructura...</p>';
+
+  let html = `
+    <h3 style="font-size: 0.95rem; margin-bottom: 0.75rem;">Columnas (${schema.columns.length})</h3>
+    <div class="table-container" style="margin-bottom: 1.5rem;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Campo (Field)</th>
+            <th>Tipo de Dato</th>
+            <th>Nullable</th>
+            <th>Clave (Key)</th>
+            <th>Valor Default</th>
+            <th>Extra</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+
+  schema.columns.forEach(col => {
+    html += `
+      <tr>
+        <td><strong>${escapeHtml(col.field)}</strong></td>
+        <td><code>${escapeHtml(col.type)}</code></td>
+        <td>${col.nullable ? '<span style="color: #34d399;">YES</span>' : '<span style="color: #f43f5e;">NO</span>'}</td>
+        <td>${col.key ? `<span class="badge badge-type-PROJECT">${col.key}</span>` : '-'}</td>
+        <td><code>${col.defaultValue !== null ? escapeHtml(col.defaultValue) : 'NULL'}</code></td>
+        <td><small style="color: var(--text-muted);">${escapeHtml(col.extra || '')}</small></td>
+      </tr>
+    `;
+  });
+
+  html += `
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="font-size: 0.95rem; margin-bottom: 0.75rem;">Índices (${schema.indexes.length})</h3>
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Nombre del Índice</th>
+            <th>Columnas Indexadas</th>
+            <th>Tipo</th>
+            <th>Único</th>
+            <th>Cardinalidad</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+
+  schema.indexes.forEach(idx => {
+    html += `
+      <tr>
+        <td><strong>${escapeHtml(idx.name)}</strong></td>
+        <td><code>${idx.columns.join(', ')}</code></td>
+        <td><span class="badge badge-version">${idx.type}</span></td>
+        <td>${idx.unique ? '<span style="color: #34d399;">SI (UNIQUE)</span>' : '<span style="color: var(--text-muted);">NO</span>'}</td>
+        <td>${idx.cardinality || 0}</td>
+      </tr>
+    `;
+  });
+
+  html += '</tbody></table></div>';
+  return html;
+}
+
+function renderTableDataView() {
+  const d = dbState.tableData;
+  if (!d) return '<p style="color: var(--text-muted);">Cargando registros...</p>';
+
+  if (!d.rows || d.rows.length === 0) {
+    return `
+      <div class="empty-state">
+        <div class="empty-state-icon">📭</div>
+        <p>La tabla <strong>${escapeHtml(d.tableName)}</strong> no contiene registros.</p>
+      </div>
+    `;
+  }
+
+  const columns = Object.keys(d.rows[0]);
+
+  let html = `
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; font-size: 0.8rem; color: var(--text-muted);">
+      <span>Mostrando ${d.rowsCount} de ${d.pagination.totalRows} registros (Página ${d.pagination.page} de ${d.pagination.totalPages}) • Consulta ejecutada en ${d.executionTimeMs}ms</span>
+      <div style="display: flex; gap: 0.5rem;">
+        <button class="btn btn-secondary btn-sm" ${d.pagination.page <= 1 ? 'disabled' : ''} onclick="loadTableDetails('${d.tableName}', 'data', ${d.pagination.page - 1})">
+          ◀ Anterior
+        </button>
+        <button class="btn btn-secondary btn-sm" ${d.pagination.page >= d.pagination.totalPages ? 'disabled' : ''} onclick="loadTableDetails('${d.tableName}', 'data', ${d.pagination.page + 1})">
+          Siguiente ▶
+        </button>
+      </div>
+    </div>
+
+    <div class="table-container" style="max-height: 550px;">
+      <table class="data-table">
+        <thead>
+          <tr>
+  `;
+
+  columns.forEach(col => {
+    html += `<th>${escapeHtml(col)}</th>`;
+  });
+
+  html += '</tr></thead><tbody>';
+
+  d.rows.forEach(row => {
+    html += '<tr>';
+    columns.forEach(col => {
+      const val = row[col];
+      if (val === null || val === undefined) {
+        html += '<td style="color: var(--text-muted); font-style: italic;">NULL</td>';
+      } else if (typeof val === 'object') {
+        const jsonStr = JSON.stringify(val);
+        html += `<td><code style="font-size: 0.72rem; color: #38bdf8; max-width: 200px; display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(jsonStr)}">${escapeHtml(jsonStr)}</code></td>`;
+      } else {
+        html += `<td>${escapeHtml(String(val))}</td>`;
+      }
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table></div>';
+  return html;
+}
+
+// ==========================================
+// SQL Interactive Console
+// ==========================================
+function renderDbSqlView() {
+  const res = dbState.sqlResult;
+
+  let html = `
+    <div class="db-content">
+      <div class="db-content-header">
+        <div>
+          <h2>⚡ Consola Interactiva SQL</h2>
+          <p style="font-size: 0.8rem; color: var(--text-muted);">Ejecuta consultas en tiempo real sobre la base de datos MySQL activa.</p>
+        </div>
+      </div>
+
+      <div class="sql-editor-container">
+        <div class="sql-snippets">
+          <span style="font-size: 0.75rem; color: var(--text-muted);">Snippets rápidos:</span>
+          <button class="sql-snippet-btn" onclick="setSqlQuery('SELECT * FROM blocks LIMIT 10;')">SELECT blocks</button>
+          <button class="sql-snippet-btn" onclick="setSqlQuery('SELECT type, COUNT(*) as total FROM blocks GROUP BY type;')">COUNT by type</button>
+          <button class="sql-snippet-btn" onclick="setSqlQuery('SHOW TABLE STATUS;')">SHOW TABLE STATUS</button>
+          <button class="sql-snippet-btn" onclick="setSqlQuery('SELECT * FROM users;')">SELECT users</button>
+          <button class="sql-snippet-btn" onclick="setSqlQuery('EXPLAIN SELECT * FROM blocks WHERE type = \\'PROJECT\\';')">EXPLAIN index</button>
+        </div>
+
+        <textarea id="sqlConsoleInput" class="sql-editor" rows="5" placeholder="Escribe tu consulta SQL aquí... ej: SELECT * FROM blocks LIMIT 10;">${escapeHtml(dbState.sqlQuery)}</textarea>
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <small style="color: var(--text-muted); font-size: 0.75rem;">Atajo: Presiona <strong>Ctrl + Enter</strong> para ejecutar.</small>
+          <button class="btn btn-primary" onclick="executeSqlQuery()" id="runSqlBtn">
+            <span>▶</span> Ejecutar Consulta
+          </button>
+        </div>
+      </div>
+  `;
+
+  // Query Results Grid
+  if (res) {
+    html += `
+      <div style="margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+          <span style="font-size: 0.85rem; font-weight: 600;">
+            Resultados: <span class="badge badge-version">${res.rowCount} filas</span>
+            <span style="color: var(--text-muted); font-size: 0.75rem; margin-left: 0.5rem;">⏱️ ${res.executionTimeMs}ms</span>
+          </span>
+          <button class="btn btn-secondary btn-sm" onclick="copySqlResults()">📋 Copiar JSON</button>
+        </div>
+    `;
+
+    if (res.rows && res.rows.length > 0) {
+      html += `
+        <div class="table-container" style="max-height: 450px;">
+          <table class="data-table">
+            <thead>
+              <tr>
+      `;
+      res.columns.forEach(col => {
+        html += `<th>${escapeHtml(col)}</th>`;
+      });
+      html += '</tr></thead><tbody>';
+
+      res.rows.forEach(row => {
+        html += '<tr>';
+        res.columns.forEach(col => {
+          const val = row[col];
+          if (val === null || val === undefined) {
+            html += '<td style="color: var(--text-muted); font-style: italic;">NULL</td>';
+          } else if (typeof val === 'object') {
+            html += `<td><code>${escapeHtml(JSON.stringify(val))}</code></td>`;
+          } else {
+            html += `<td>${escapeHtml(String(val))}</td>`;
+          }
+        });
+        html += '</tr>';
+      });
+
+      html += '</tbody></table></div>';
+    } else {
+      html += '<p style="color: var(--text-muted); font-size: 0.85rem;">Consulta ejecutada exitosamente sin filas retornadas.</p>';
+    }
+
+    html += '</div>';
+  }
+
+  html += '</div>';
+  return html;
+}
+
+function setSqlQuery(sql) {
+  dbState.sqlQuery = sql;
+  const input = document.getElementById('sqlConsoleInput');
+  if (input) input.value = sql;
+}
+
+async function executeSqlQuery() {
+  const input = document.getElementById('sqlConsoleInput');
+  const sql = input ? input.value.trim() : dbState.sqlQuery;
+  if (!sql) return;
+
+  dbState.sqlQuery = sql;
+  const btn = document.getElementById('runSqlBtn');
+  if (btn) btn.classList.add('loading');
+
+  try {
+    const res = await apiRequest('/api/database/query', {
+      method: 'POST',
+      body: JSON.stringify({ query: sql })
+    });
+    dbState.sqlResult = res.data;
+    renderDatabaseView();
+    showToast(`Consulta ejecutada en ${res.data.executionTimeMs}ms`, 'success');
+  } catch (err) {
+    showToast(err.message, 'error');
+  } finally {
+    if (btn) btn.classList.remove('loading');
+  }
+}
+
+function copySqlResults() {
+  if (dbState.sqlResult?.rows) {
+    navigator.clipboard.writeText(JSON.stringify(dbState.sqlResult.rows, null, 2));
+    showToast('Resultados copiados al portapapeles en formato JSON', 'success');
+  }
+}
+
+// ==========================================
+// Connection Configuration & Tester View
+// ==========================================
+function renderDbConfigView() {
+  const cfg = dbState.status?.config || {};
+  const testRes = dbState.testConnResult;
+
+  return `
+    <div class="db-content">
+      <div class="db-content-header">
+        <div>
+          <h2>⚙️ Configuración & Test de Conexión MySQL</h2>
+          <p style="font-size: 0.8rem; color: var(--text-muted);">Revisa los parámetros actuales y prueba conexiones hacia bases de datos remotas en Render o la nube.</p>
+        </div>
+      </div>
+
+      <!-- Current Connection Card -->
+      <div style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem;">
+        <h3 style="font-size: 1rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+          <span>🔌 Conexión Activa en el Servidor</span>
+          ${cfg.ssl ? '<span class="badge badge-type-TASK">SSL Activado</span>' : '<span class="badge badge-version">Local / No SSL</span>'}
+        </h3>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; font-size: 0.85rem;">
+          <div><span style="color: var(--text-muted);">Host:</span> <strong>${escapeHtml(cfg.host || 'localhost')}</strong></div>
+          <div><span style="color: var(--text-muted);">Puerto:</span> <strong>${cfg.port || 3306}</strong></div>
+          <div><span style="color: var(--text-muted);">Usuario:</span> <strong>${escapeHtml(cfg.user || 'root')}</strong></div>
+          <div><span style="color: var(--text-muted);">Base de Datos:</span> <strong>${escapeHtml(cfg.database || 'block_system')}</strong></div>
+        </div>
+
+        <div style="margin-top: 1rem;">
+          <span style="color: var(--text-muted); font-size: 0.75rem; display: block; margin-bottom: 0.3rem;">Cadena de Conexión Enmascarada (DATABASE_URL):</span>
+          <code style="background: var(--bg-secondary); padding: 0.5rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.78rem; display: block; overflow-x: auto; color: var(--accent-blue);">
+            ${escapeHtml(cfg.maskedUrl || 'mysql://root:******@localhost:3306/block_system')}
+          </code>
+        </div>
+      </div>
+
+      <!-- Live Connection Tester Tool -->
+      <div style="background: var(--bg-primary); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: var(--radius-md); padding: 1.25rem;">
+        <h3 style="font-size: 1rem; margin-bottom: 0.5rem; color: #38bdf8;">
+          🧪 Probador de Conexión en Vivo
+        </h3>
+        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem;">
+          Ingresa una cadena de conexión MySQL (local o en la nube) para medir la latencia de red, verificar el apretón de manos SSL y validar credenciales.
+        </p>
+
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="fillTestConnection('mysql://root:@localhost:3306/block_system')">
+            Preset: MySQL Local (Laragon)
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="fillTestConnection('mysql://usuario:password@host.render.com:3306/database?sslaccept=strict')">
+            Preset: Render / TiDB Cloud (SSL)
+          </button>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label for="testConnInput">Cadena de Conexión a Probar:</label>
+          <input type="text" id="testConnInput" class="form-control" style="font-family: var(--font-mono); font-size: 0.85rem;" value="${escapeHtml(dbState.testConnUrl)}" placeholder="mysql://usuario:clave@servidor.com:3306/nombre_db?sslaccept=strict">
+        </div>
+
+        <button class="btn btn-primary" onclick="testDatabaseConnection()" id="testConnBtn">
+          🔌 Probar Conectividad
+        </button>
+
+        ${testRes ? `
+          <div style="margin-top: 1.25rem; background: var(--bg-secondary); border: 1px solid ${testRes.success ? '#10b981' : '#f43f5e'}; border-radius: var(--radius-sm); padding: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <strong>${testRes.success ? '✔ Conexión Exitosa' : '✖ Falló la Conexión'}</strong>
+              <span class="badge ${testRes.success ? 'badge-type-TASK' : 'badge-type-CONTRACT'}">
+                Ping: ${testRes.pingTimeMs}ms
+              </span>
+            </div>
+
+            ${testRes.success ? `
+              <div style="font-size: 0.82rem; color: var(--text-secondary);">
+                <div>• Versión de MySQL: <strong>${escapeHtml(testRes.version || 'Desconocida')}</strong></div>
+                <div>• Base de Datos: <strong>${escapeHtml(testRes.database || '-')}</strong></div>
+                <div>• Usuario Autenticado: <strong>${escapeHtml(testRes.authenticatedUser || '-')}</strong></div>
+                <div>• Tablas encontradas: <strong>${testRes.tablesCount}</strong></div>
+              </div>
+            ` : `
+              <div style="font-size: 0.82rem; color: #fb7185;">
+                <div>Error: <strong>${escapeHtml(testRes.error)}</strong> (Código: ${escapeHtml(testRes.code || 'ERR')})</div>
+                ${testRes.suggestion ? `<div style="margin-top: 0.5rem; color: var(--text-primary);">💡 Sugerencia: ${escapeHtml(testRes.suggestion)}</div>` : ''}
+              </div>
+            `}
+          </div>
+        ` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function fillTestConnection(url) {
+  dbState.testConnUrl = url;
+  const input = document.getElementById('testConnInput');
+  if (input) input.value = url;
+}
+
+async function testDatabaseConnection() {
+  const input = document.getElementById('testConnInput');
+  const url = input ? input.value.trim() : dbState.testConnUrl;
+  if (!url) return;
+
+  dbState.testConnUrl = url;
+  const btn = document.getElementById('testConnBtn');
+  if (btn) btn.classList.add('loading');
+
+  try {
+    const res = await apiRequest('/api/database/test-connection', {
+      method: 'POST',
+      body: JSON.stringify({ connectionUrl: url })
+    });
+    dbState.testConnResult = res.data;
+    renderDatabaseView();
+    if (res.data.success) {
+      showToast(`¡Conexión exitosa! Ping: ${res.data.pingTimeMs}ms`, 'success');
+    } else {
+      showToast(`Error de conexión: ${res.data.error}`, 'error');
+    }
+  } catch (err) {
+    showToast(err.message, 'error');
+  } finally {
+    if (btn) btn.classList.remove('loading');
   }
 }
 
@@ -1571,6 +2174,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     btn.addEventListener('click', () => {
       state.activeTab = btn.dataset.tab;
       renderApp();
+      if (state.activeTab === 'database') {
+        loadDatabaseView();
+      }
     });
   });
 
@@ -1622,6 +2228,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('blockForm')?.addEventListener('submit', handleBlockFormSubmit);
   document.getElementById('loginForm')?.addEventListener('submit', handleLoginSubmit);
   document.getElementById('createTypeForm')?.addEventListener('submit', handleCreateTypeSubmit);
+
+  // Keyboard shortcut for SQL Console (Ctrl + Enter)
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      const sqlInput = document.getElementById('sqlConsoleInput');
+      if (sqlInput && document.activeElement === sqlInput) {
+        e.preventDefault();
+        executeSqlQuery();
+      }
+    }
+  });
 
   // Close dialog buttons
   document.querySelectorAll('[data-close-dialog]').forEach(btn => {

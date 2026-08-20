@@ -36,8 +36,10 @@ The core architecture utilizes **Single Table Inheritance (STI)** with a self-re
   - **Vista en Árbol Jerárquico**: Visualización de nodos anidados (Gantt-ready), expansión/contracción, creación de hijos directa y previsualización de payloads.
   - **Vista de Tabla con Filtros Múltiples**: Búsqueda por texto, tipo, estado y versión de esquema (`schema_version`).
   - **Gestor de Relaciones (Parent Selector)**: Re-asignación de nodos padres y prevención de ciclos en el árbol.
+  - **Plantillas de Dominio en 1 Clic**: Generadores automáticos de jerarquías para Videojuegos, Arquitectura de Bases de Datos y Cine.
   - **Gestor de Tipos y Plantillas Personalizadas**: Creación de tipos de bloques propios con plantillas JSON precargadas.
   - **Editor de Payloads**: Editor en vivo con formateador y validación de sintaxis JSON en tiempo real.
+  - **Visor de MySQL y Consola SQL**: Explorador de base de datos integrado con métricas de servidor, inspector de estructura de tablas (columnas, índices, claves foráneas), navegador de filas en vivo con paginación, consola interactiva para queries SQL (`Ctrl + Enter`) y probador de conexión para bases de datos en la nube con diagnóstico de SSL (`?sslaccept=strict`).
 - **Input Validation & Error Handling**:
   - Strict schema validations via **Zod** middleware.
   - Centralized error handler with standardized JSON response envelopes.
