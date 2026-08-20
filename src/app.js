@@ -49,14 +49,23 @@ try {
   console.warn('[Swagger] Could not load openapi.yaml:', err.message);
 }
 
-// Base Welcome Route
-app.get('/', (req, res) => {
-  res.json({
-    message: 'Welcome to Polymorphic Block Management API',
-    docs: '/api/docs',
-    health: '/api/health',
-    version: '1.0.0',
-  });
+// Static Assets & Web App UI Mounting
+const publicDir = path.join(__dirname, '../public');
+app.use(express.static(publicDir));
+
+// Serve Web Studio UI at root and /app
+app.get(['/', '/app'], (req, res, next) => {
+  // If client specifically asks for JSON at root, return API metadata
+  if (req.path === '/' && req.headers.accept && req.headers.accept.includes('application/json') && !req.headers.accept.includes('text/html')) {
+    return res.json({
+      message: 'Welcome to Polymorphic Block Management API',
+      app: '/app',
+      docs: '/api/docs',
+      health: '/api/health',
+      version: '1.0.0',
+    });
+  }
+  res.sendFile(path.join(publicDir, 'index.html'));
 });
 
 // Swagger UI & OpenAPI Specification Endpoints

@@ -31,6 +31,13 @@ The core architecture utilizes **Single Table Inheritance (STI)** with a self-re
   - **Primary**: Resend REST API (`RESEND_API_KEY`).
   - **Fallback**: Generic SMTP transport (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`).
   - **Development Mode**: Safe fallback to formatted console logging.
+- **Interactive Web Studio App (`/` o `/app`)**:
+  - Interfaz visual SPA moderna integrada para gestión CRUD completa de bloques sin dependencias externas.
+  - **Vista en Árbol Jerárquico**: Visualización de nodos anidados (Gantt-ready), expansión/contracción, creación de hijos directa y previsualización de payloads.
+  - **Vista de Tabla con Filtros Múltiples**: Búsqueda por texto, tipo, estado y versión de esquema (`schema_version`).
+  - **Gestor de Relaciones (Parent Selector)**: Re-asignación de nodos padres y prevención de ciclos en el árbol.
+  - **Gestor de Tipos y Plantillas Personalizadas**: Creación de tipos de bloques propios con plantillas JSON precargadas.
+  - **Editor de Payloads**: Editor en vivo con formateador y validación de sintaxis JSON en tiempo real.
 - **Input Validation & Error Handling**:
   - Strict schema validations via **Zod** middleware.
   - Centralized error handler with standardized JSON response envelopes.

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DataBlock Studio - Polymorphic Block Manager</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%20width=%22100%22%20height=%22100%22><text y=%22.9em%22 font-size=%2290%22>📦</text></svg>">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Navbar -->
+    <header class="navbar">
+      <a href="/" class="nav-brand">
+        <div class="brand-icon">📦</div>
+        <div>
+          <span>DataBlock Studio</span>
+          <span style="font-size: 0.7rem; color: var(--accent-blue); font-weight: normal; margin-left: 0.3rem;">v1.0.0</span>
+        </div>
+      </a>
+
+      <!-- View Selector Tabs -->
+      <nav class="nav-tabs">
+        <button class="nav-tab-btn active" data-tab="tree">
+          <span>🌳</span> Árbol Jerárquico
+        </button>
+        <button class="nav-tab-btn" data-tab="table">
+          <span>📋</span> Lista y Filtros
+        </button>
+        <button class="nav-tab-btn" data-tab="types">
+          <span>🎨</span> Tipos y Plantillas
+        </button>
+      </nav>
+
+      <!-- User Info & Global Actions -->
+      <div class="nav-actions">
+        <a href="/api/docs" target="_blank" class="btn btn-secondary btn-sm" title="Ver Swagger UI">
+          <span>📑</span> Swagger Docs
+        </a>
+        <div id="userBadge" class="user-badge" style="display: none;"></div>
+        <button id="authBtn" class="btn btn-secondary btn-sm">🔑 Ingresar</button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content" id="mainContentArea">
+      <!-- Action Bar -->
+      <div class="action-bar">
+        <div class="action-bar-title">
+          <h1>Gestor de Bloques Polimórficos (STI)</h1>
+          <p>Crea, edita, organiza relaciones jerárquicas y gestiona metadatos JSON para diagramas de Gantt y WBS.</p>
+        </div>
+        <div class="action-buttons">
+          <button id="refreshBtn" class="btn btn-secondary" onclick="loadData()">
+            <span>🔄</span> Recargar
+          </button>
+          <button class="btn btn-secondary" onclick="toggleExpandAllTree()">
+            <span>🔀</span> Expandir / Contraer Todo
+          </button>
+          <button class="btn btn-primary" onclick="openCreateBlockModal(null)">
+            <span>➕</span> Nuevo Bloque Raíz (Proyecto)
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters Bar (Visible for Table and Tree) -->
+      <div class="filters-card">
+        <div class="filter-group">
+          <label for="filterSearch">🔍 Buscar:</label>
+          <input type="text" id="filterSearch" class="form-control" placeholder="Filtrar por nombre...">
+        </div>
+        <div class="filter-group">
+          <label for="filterType">Tipo:</label>
+          <select id="filterType" class="select-control">
+            <option value="">Todos los tipos</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filterStatus">Estado:</label>
+          <select id="filterStatus" class="select-control">
+            <option value="">Todos los estados</option>
+            <option value="pending">Pending</option>
+            <option value="in_progress">In Progress</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filterVersion">Versión Esquema:</label>
+          <select id="filterVersion" class="select-control">
+            <option value="">Todas las versiones</option>
+            <option value="1">v1</option>
+            <option value="2">v2</option>
+            <option value="3">v3</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- View 1: Hierarchical Tree -->
+      <section id="treeViewContainer"></section>
+
+      <!-- View 2: Table / Flat List -->
+      <section id="tableViewContainer" style="display: none;"></section>
+
+      <!-- View 3: Types & Template Manager -->
+      <section id="typesViewContainer" style="display: none;"></section>
+    </main>
+  </div>
+
+  <!-- Modal 1: Create / Edit Block -->
+  <dialog id="blockModal">
+    <div class="modal-header">
+      <h2 id="blockModalTitle">➕ Bloque</h2>
+      <button class="btn btn-secondary btn-sm" data-close-dialog type="button">✕</button>
+    </div>
+    <form id="blockForm">
+      <input type="hidden" id="blockId">
+      <div class="modal-body">
+        <!-- Parent Selector (Relationship Management) -->
+        <div class="form-group">
+          <label for="blockParentId">🔗 Bloque Padre (Relación Jerárquica):</label>
+          <select id="blockParentId" class="select-control">
+            <option value="">-- Raíz (Sin Padre / Nivel Proyecto) --</option>
+          </select>
+          <span class="form-help">Selecciona un bloque existente para anidar este elemento como hijo.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="blockName">📌 Título / Nombre del Bloque *:</label>
+          <input type="text" id="blockName" class="form-control" required placeholder="ej. Rediseño de Arquitectura Cloud">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="blockType">🏷️ Tipo de Bloque (STI) *:</label>
+            <select id="blockType" class="select-control" required></select>
+          </div>
+          <div class="form-group">
+            <label for="blockStatus">🚦 Estado:</label>
+            <select id="blockStatus" class="select-control">
+              <option value="pending">pending (Pendiente)</option>
+              <option value="in_progress">in_progress (En Progreso)</option>
+              <option value="completed">completed (Completado)</option>
+              <option value="cancelled">cancelled (Cancelado)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="blockStartDate">📅 Fecha Inicio *:</label>
+            <input type="date" id="blockStartDate" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="blockEndDate">📅 Fecha Fin *:</label>
+            <input type="date" id="blockEndDate" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="blockSchemaVersion">🔢 Versión del Esquema (schema_version):</label>
+          <input type="number" id="blockSchemaVersion" class="form-control" value="1" min="1" step="1">
+          <span class="form-help">Control de versión del modelo de datos para evolución del payload.</span>
+        </div>
+
+        <div class="form-group">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <label for="blockPayload">📦 Metadatos Dinámicos (JSON Payload):</label>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="formatPayloadTextarea()">Format JSON</button>
+          </div>
+          <textarea id="blockPayload" class="form-control" rows="6" placeholder="{}"></textarea>
+          <span class="form-help">Al actualizar, los campos nuevos se fusionan automáticamente (shallow merge) con los existentes.</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-close-dialog>Cancelar</button>
+        <button type="submit" class="btn btn-primary">💾 Guardar Bloque</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Modal 2: Confirm Delete Block -->
+  <dialog id="deleteModal">
+    <div class="modal-header">
+      <h2>⚠️ Confirmar Eliminación</h2>
+      <button class="btn btn-secondary btn-sm" data-close-dialog type="button">✕</button>
+    </div>
+    <div class="modal-body">
+      <p id="deleteBlockDesc">¿Estás seguro de eliminar este bloque?</p>
+      <div style="background: rgba(244, 63, 94, 0.1); border: 1px solid rgba(244, 63, 94, 0.3); border-radius: var(--radius-sm); padding: 0.75rem; color: #fb7185; font-size: 0.8rem; margin-top: 0.5rem;">
+        <strong>Aviso de Cascada:</strong> Cualquier bloque que tenga a este nodo como padre será eliminado automáticamente de la base de datos.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-close-dialog>Cancelar</button>
+      <button type="button" class="btn btn-danger" onclick="confirmDeleteBlock()">🗑️ Sí, Eliminar</button>
+    </div>
+  </dialog>
+
+  <!-- Modal 3: Create Custom Block Type -->
+  <dialog id="createTypeModal">
+    <div class="modal-header">
+      <h2>🎨 Crear Nuevo Tipo de Bloque</h2>
+      <button class="btn btn-secondary btn-sm" data-close-dialog type="button">✕</button>
+    </div>
+    <form id="createTypeForm">
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="newTypeName">Código / Identificador del Tipo (Mayúsculas) *:</label>
+          <input type="text" id="newTypeName" class="form-control" required placeholder="ej. BUG, RISKS, EPIC, SPRINT">
+          <span class="form-help">Identificador único guardado en la columna 'type' de la base de datos.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="newTypeLabel">Nombre Descriptivo / Etiqueta:</label>
+          <input type="text" id="newTypeLabel" class="form-control" placeholder="ej. Error / Bug Crítico">
+        </div>
+
+        <div class="form-group">
+          <label for="newTypeTemplate">Plantilla JSON por Defecto para el Payload:</label>
+          <textarea id="newTypeTemplate" class="form-control" rows="5"></textarea>
+          <span class="form-help">Estructura JSON que se precargará automáticamente al crear bloques de este tipo.</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-close-dialog>Cancelar</button>
+        <button type="submit" class="btn btn-primary">Crear Tipo</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Modal 4: Authentication (Login) -->
+  <dialog id="authModal">
+    <div class="modal-header">
+      <h2>🔑 Autenticación</h2>
+      <button class="btn btn-secondary btn-sm" data-close-dialog type="button">✕</button>
+    </div>
+    <form id="loginForm">
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="loginEmail">Correo Electrónico:</label>
+          <input type="email" id="loginEmail" class="form-control" required placeholder="admin@uxcribe.com">
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Contraseña:</label>
+          <input type="password" id="loginPassword" class="form-control" required placeholder="••••••••">
+        </div>
+        <div style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.75rem;">
+          <small style="color: var(--text-muted); display: block; margin-bottom: 0.5rem;">Credenciales rápidas de prueba:</small>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="fillCredentials('admin@uxcribe.com', 'AdminPass123!')">
+              Admin (Seed)
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="fillCredentials('user@uxcribe.com', 'UserPass123!')">
+              User (Seed)
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-close-dialog>Cerrar</button>
+        <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
