@@ -33,26 +33,27 @@ async function seed() {
 
   console.log(`👤 Created users: ${admin.email} (admin), ${user.email} (user)`);
 
-  // Create Polymorphic Block Hierarchy
+  // Create Generic Polymorphic Block Hierarchy
   const now = new Date();
-  const addDays = (d, days) => new Date(d.getTime() + days * 24 * 60 * 60 * 1000);
+  const addDays = (d, days) => new Date(d.getTime() + days * 24 * 60 * 60 * 1000).toISOString();
 
   // 1. Root Project
   const project = await prisma.block.create({
     data: {
-      name: 'Enterprise Cloud Platform Redesign',
-      type: 'PROJECT',
-      status: 'in_progress',
-      start_date: now,
-      end_date: addDays(now, 60),
+      payload_type: 'PROJECT',
+      payload_type_version: 1,
       payload: {
+        name: 'Enterprise Cloud Platform Redesign',
+        status: 'in_progress',
+        start_date: now.toISOString(),
+        end_date: addDays(now, 60),
         client: 'Acme Global Corp',
         budget: 150000,
         currency: 'USD',
         manager: 'Sarah Jenkins',
         priority: 'HIGH',
         gantt: {
-          color: '#3b82f6',
+          color: '#38bdf8',
           collapsed: false,
           criticalPath: true,
         },
@@ -64,12 +65,13 @@ async function seed() {
   const stage1 = await prisma.block.create({
     data: {
       parent_id: project.id,
-      name: 'Stage 1: Discovery & Architecture',
-      type: 'STAGE',
-      status: 'completed',
-      start_date: now,
-      end_date: addDays(now, 15),
+      payload_type: 'STAGE',
+      payload_type_version: 1,
       payload: {
+        name: 'Stage 1: Discovery & Architecture',
+        status: 'completed',
+        start_date: now.toISOString(),
+        end_date: addDays(now, 15),
         stageNumber: 1,
         lead: 'Alex Rivera',
         deliverablesCount: 4,
@@ -81,12 +83,14 @@ async function seed() {
   await prisma.block.create({
     data: {
       parent_id: stage1.id,
-      name: 'User Interviews & Workflow Analysis',
-      type: 'TASK',
-      status: 'completed',
-      start_date: now,
-      end_date: addDays(now, 7),
+      payload_type: 'TASK',
+      payload_type_version: 1,
       payload: {
+        name: 'User Interviews & Workflow Analysis',
+        status: 'completed',
+        start_date: now.toISOString(),
+        end_date: addDays(now, 7),
+        due_date: addDays(now, 7),
         assignee: 'Elena Rostova',
         storyPoints: 8,
         progress: 100,
@@ -99,12 +103,13 @@ async function seed() {
   await prisma.block.create({
     data: {
       parent_id: stage1.id,
-      name: 'Architecture Specification PDF',
-      type: 'ASSET',
-      status: 'completed',
-      start_date: addDays(now, 8),
-      end_date: addDays(now, 15),
+      payload_type: 'ASSET',
+      payload_type_version: 1,
       payload: {
+        name: 'Architecture Specification PDF',
+        status: 'completed',
+        start_date: addDays(now, 8),
+        end_date: addDays(now, 15),
         fileUrl: 'https://cdn.uxcribe.com/docs/arch-spec-v1.pdf',
         mimeType: 'application/pdf',
         sizeBytes: 4820000,
@@ -117,12 +122,13 @@ async function seed() {
   const stage2 = await prisma.block.create({
     data: {
       parent_id: project.id,
-      name: 'Stage 2: Frontend & API Implementation',
-      type: 'STAGE',
-      status: 'in_progress',
-      start_date: addDays(now, 16),
-      end_date: addDays(now, 45),
+      payload_type: 'STAGE',
+      payload_type_version: 1,
       payload: {
+        name: 'Stage 2: Frontend & API Implementation',
+        status: 'in_progress',
+        start_date: addDays(now, 16),
+        end_date: addDays(now, 45),
         stageNumber: 2,
         lead: 'Marcus Vance',
         deliverablesCount: 8,
@@ -134,12 +140,14 @@ async function seed() {
   await prisma.block.create({
     data: {
       parent_id: stage2.id,
-      name: 'Build Gantt Chart Visualization Components',
-      type: 'TASK',
-      status: 'in_progress',
-      start_date: addDays(now, 16),
-      end_date: addDays(now, 30),
+      payload_type: 'TASK',
+      payload_type_version: 1,
       payload: {
+        name: 'Build Gantt Chart Visualization Components',
+        status: 'in_progress',
+        start_date: addDays(now, 16),
+        end_date: addDays(now, 30),
+        due_date: addDays(now, 30),
         assignee: 'David Kim',
         storyPoints: 13,
         progress: 60,
@@ -153,12 +161,13 @@ async function seed() {
   await prisma.block.create({
     data: {
       parent_id: stage2.id,
-      name: 'Vendor Service Level Agreement (SLA)',
-      type: 'CONTRACT',
-      status: 'pending',
-      start_date: addDays(now, 20),
-      end_date: addDays(now, 45),
+      payload_type: 'CONTRACT',
+      payload_type_version: 1,
       payload: {
+        name: 'Vendor Service Level Agreement (SLA)',
+        status: 'pending',
+        start_date: addDays(now, 20),
+        end_date: addDays(now, 45),
         vendorName: 'CloudScale Systems LLC',
         contractValue: 35000,
         currency: 'USD',
@@ -167,10 +176,10 @@ async function seed() {
     },
   });
 
-  console.log('✅ Seed completed successfully! Created polymorphic project tree:');
-  console.log(`- Project: ${project.name} (${project.id})`);
-  console.log(`  |- Stage 1: ${stage1.name} (with 1 Task, 1 Asset)`);
-  console.log(`  |- Stage 2: ${stage2.name} (with 1 Task, 1 Contract)`);
+  console.log('✅ Seed completed successfully! Created generic polymorphic project tree:');
+  console.log(`- Project: ${project.payload?.name} (${project.id})`);
+  console.log(`  |- Stage 1: ${stage1.payload?.name} (with 1 Task, 1 Asset)`);
+  console.log(`  |- Stage 2: ${stage2.payload?.name} (with 1 Task, 1 Contract)`);
 }
 
 seed()

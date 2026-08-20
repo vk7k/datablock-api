@@ -117,25 +117,21 @@ model User {
 }
 
 model Block {
-  id             String    @id @default(uuid()) @db.VarChar(36)
-  parent_id      String?   @map("parent_id") @db.VarChar(36)
-  name           String    @db.VarChar(255)
-  start_date     DateTime  @map("start_date")
-  end_date       DateTime  @map("end_date")
-  status         String    @default("pending") @db.VarChar(50)
-  type           String    @db.VarChar(50)
-  schema_version Int       @default(1) @map("schema_version")
-  payload        Json?     @db.Json
-  created_at     DateTime  @default(now()) @map("created_at")
-  updated_at     DateTime  @updatedAt @map("updated_at")
+  id                   String    @id @default(uuid()) @db.VarChar(36)
+  parent_id            String?   @map("parent_id") @db.VarChar(36)
+  payload_type         String    @default("GENERIC") @map("payload_type") @db.VarChar(50)
+  payload_type_version Int       @default(1) @map("payload_type_version")
+  payload              Json?     @db.Json
+  created_at           DateTime  @default(now()) @map("created_at")
+  updated_at           DateTime  @updatedAt @map("updated_at")
 
+  // Self-referencing relationship with Cascade deletion
   parent   Block?  @relation("BlockHierarchy", fields: [parent_id], references: [id], onDelete: Cascade)
   children Block[] @relation("BlockHierarchy")
 
   @@index([parent_id])
-  @@index([type])
-  @@index([status])
-  @@index([schema_version])
+  @@index([payload_type])
+  @@index([payload_type_version])
   @@map("blocks")
 }
 ```
@@ -287,7 +283,7 @@ All responses are wrapped in a standard response envelope:
 
 ### 📦 3. Polymorphic Block Endpoints (Requires Bearer Token)
 
-#### 🌳 Fetch Hierarchical Tree (Optimized for Gantt Chart)
+#### 🌳 Fetch Hierarchical Tree (O(N) Hierarchical Structure)
 `GET /api/blocks/tree`
 
 **Response (`200 OK`)**:
@@ -299,16 +295,17 @@ All responses are wrapped in a standard response envelope:
     {
       "id": "e2a7b8e1-55bb-42c2-b52f-1014a5118742",
       "parent_id": null,
-      "name": "Cloud Migration & Core Modernization",
-      "type": "PROJECT",
-      "status": "in_progress",
-      "start_date": "2026-09-01T00:00:00.000Z",
-      "end_date": "2026-11-30T00:00:00.000Z",
+      "payload_type": "PROJECT",
+      "payload_type_version": 1,
       "payload": {
-        "budget": 200000,
+        "name": "Enterprise Cloud Platform Redesign",
+        "status": "in_progress",
+        "start_date": "2026-09-01T00:00:00.000Z",
+        "end_date": "2026-11-30T00:00:00.000Z",
+        "budget": 150000,
         "client": "Acme Corp",
         "gantt": {
-          "color": "#3b82f6",
+          "color": "#38bdf8",
           "criticalPath": true
         }
       },
@@ -316,24 +313,23 @@ All responses are wrapped in a standard response envelope:
         {
           "id": "a90b4d45-64d8-4f18-a681-35b91b8a9134",
           "parent_id": "e2a7b8e1-55bb-42c2-b52f-1014a5118742",
-          "name": "Phase 1: Architecture & Prototyping",
-          "type": "STAGE",
-          "status": "completed",
-          "start_date": "2026-09-01T00:00:00.000Z",
-          "end_date": "2026-09-20T00:00:00.000Z",
+          "payload_type": "STAGE",
+          "payload_type_version": 1,
           "payload": {
+            "name": "Phase 1: Architecture & Prototyping",
+            "status": "completed",
             "lead": "Tech Lead"
           },
           "children": [
             {
               "id": "f51c8901-1b2c-4d3e-9f0a-881122334455",
               "parent_id": "a90b4d45-64d8-4f18-a681-35b91b8a9134",
-              "name": "Implement Database Migration Script",
-              "type": "TASK",
-              "status": "completed",
-              "start_date": "2026-09-01T00:00:00.000Z",
-              "end_date": "2026-09-10T00:00:00.000Z",
+              "payload_type": "TASK",
+              "payload_type_version": 1,
               "payload": {
+                "name": "Implement Database Migration Script",
+                "status": "completed",
+                "due_date": "2026-09-10T00:00:00.000Z",
                 "assignee": "Database Engineer",
                 "storyPoints": 5,
                 "progress": 100
@@ -349,14 +345,13 @@ All responses are wrapped in a standard response envelope:
 ```
 
 #### 📋 List Blocks (Flat & Filterable)
-`GET /api/blocks?type=TASK&status=in_progress&schema_version=1&search=Migration`
+`GET /api/blocks?payload_type=TASK&payload_type_version=1&search=Migration`
 
 **Query Parameters:**
-- `type`: Filter by entity type (e.g. `PROJECT`, `STAGE`, `TASK`, `ASSET`)
+- `payload_type`: Filter by payload type (e.g. `PROJECT`, `STAGE`, `TASK`, `GAME`, `SCHEMA`, etc.)
 - `parent_id`: Filter by parent ID or `null` for root blocks
-- `status`: Filter by status (e.g. `pending`, `in_progress`, `completed`)
-- `schema_version`: Filter by schema version number (e.g. `1`, `2`)
-- `search`: Case-insensitive search on block `name`
+- `payload_type_version`: Filter by schema version number (e.g. `1`, `2`)
+- `search`: Case-insensitive search match inside JSON `payload`
 
 #### 🔍 Get Single Block
 `GET /api/blocks/:id`
@@ -366,13 +361,12 @@ All responses are wrapped in a standard response envelope:
 ```json
 {
   "parent_id": "a90b4d45-64d8-4f18-a681-35b91b8a9134",
-  "name": "Security Audit & Pen Testing",
-  "type": "TASK",
-  "status": "pending",
-  "schema_version": 1,
-  "start_date": "2026-10-01T00:00:00.000Z",
-  "end_date": "2026-10-15T00:00:00.000Z",
+  "payload_type": "TASK",
+  "payload_type_version": 1,
   "payload": {
+    "name": "Security Audit & Pen Testing",
+    "status": "pending",
+    "due_date": "2026-10-15T00:00:00.000Z",
     "assignee": "SecOps Team",
     "priority": "HIGH",
     "tags": ["Security", "Compliance", "Audit"]
@@ -384,15 +378,15 @@ All responses are wrapped in a standard response envelope:
 `PUT /api/blocks/:id`
 ```json
 {
-  "status": "in_progress",
-  "schema_version": 1,
+  "payload_type_version": 2,
   "payload": {
+    "status": "in_progress",
     "progress": 50,
     "lastNote": "Initial scanning complete"
   }
 }
 ```
-*Note: Any existing keys in `payload` that are not supplied in the request are preserved.*
+*Note: Any existing keys in `payload` that are not supplied in the request are preserved (shallow merge).*
 
 #### 🗑️ Delete Block (Cascade)
 `DELETE /api/blocks/:id`

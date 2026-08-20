@@ -1,5 +1,5 @@
 // Prisma Schema for Polymorphic Block Management System
-// Single Table Inheritance (STI) Model with Self-Referencing Blocks & JSON Payload
+// Single Table Inheritance (STI) Model with Self-Referencing Blocks & Dynamic JSON Payload
 
 datasource db {
   provider = "mysql"
@@ -24,25 +24,20 @@ model User {
 }
 
 model Block {
-  id         String    @id @default(uuid()) @db.VarChar(36)
-  parent_id  String?   @map("parent_id") @db.VarChar(36)
-  name       String    @db.VarChar(255)
-  start_date DateTime  @map("start_date")
-  end_date   DateTime  @map("end_date")
-  status     String    @default("pending") @db.VarChar(50)
-  type           String    @db.VarChar(50)
-  schema_version Int       @default(1) @map("schema_version")
-  payload        Json?     @db.Json
-  created_at     DateTime  @default(now()) @map("created_at")
-  updated_at     DateTime  @updatedAt @map("updated_at")
+  id                   String    @id @default(uuid()) @db.VarChar(36)
+  parent_id            String?   @map("parent_id") @db.VarChar(36)
+  payload_type         String    @default("GENERIC") @map("payload_type") @db.VarChar(50)
+  payload_type_version Int       @default(1) @map("payload_type_version")
+  payload              Json?     @db.Json
+  created_at           DateTime  @default(now()) @map("created_at")
+  updated_at           DateTime  @updatedAt @map("updated_at")
 
   // Self-referencing relationship with Cascade deletion
   parent   Block?  @relation("BlockHierarchy", fields: [parent_id], references: [id], onDelete: Cascade)
   children Block[] @relation("BlockHierarchy")
 
   @@index([parent_id])
-  @@index([type])
-  @@index([status])
-  @@index([schema_version])
+  @@index([payload_type])
+  @@index([payload_type_version])
   @@map("blocks")
 }

@@ -50,15 +50,15 @@ async function runTests() {
     assert.strictEqual(wrongMatch, false, 'Wrong password must return false');
   });
 
-  // 3. Polymorphic Tree Builder Test
-  await test('Hierarchical Block Tree Builder O(N)', () => {
+  // 3. Generic Polymorphic Tree Builder Test
+  await test('Hierarchical Generic Block Tree Builder O(N)', () => {
     const sampleBlocks = [
-      { id: 'proj-1', parent_id: null, name: 'Main Project', type: 'PROJECT' },
-      { id: 'stage-1', parent_id: 'proj-1', name: 'Discovery Stage', type: 'STAGE' },
-      { id: 'task-1', parent_id: 'stage-1', name: 'User Interviews', type: 'TASK' },
-      { id: 'asset-1', parent_id: 'stage-1', name: 'Design Specs PDF', type: 'ASSET' },
-      { id: 'stage-2', parent_id: 'proj-1', name: 'Development Stage', type: 'STAGE' },
-      { id: 'task-2', parent_id: 'stage-2', name: 'Build Gantt Chart', type: 'TASK' },
+      { id: 'proj-1', parent_id: null, payload_type: 'PROJECT', payload: { name: 'Main Project' } },
+      { id: 'stage-1', parent_id: 'proj-1', payload_type: 'STAGE', payload: { name: 'Discovery Stage' } },
+      { id: 'task-1', parent_id: 'stage-1', payload_type: 'TASK', payload: { name: 'User Interviews' } },
+      { id: 'asset-1', parent_id: 'stage-1', payload_type: 'ASSET', payload: { name: 'Design Specs PDF' } },
+      { id: 'stage-2', parent_id: 'proj-1', payload_type: 'STAGE', payload: { name: 'Development Stage' } },
+      { id: 'task-2', parent_id: 'stage-2', payload_type: 'TASK', payload: { name: 'Build Gantt Chart' } },
     ];
 
     const tree = buildBlockTree(sampleBlocks);
@@ -76,7 +76,6 @@ async function runTests() {
 
   // 4. Request Validation Tests
   await test('Auth Validator Schema Validation', () => {
-    // Valid register
     const validRegister = registerSchema.parse({
       email: 'alex@example.com',
       password: 'password123',
@@ -84,7 +83,6 @@ async function runTests() {
     });
     assert.strictEqual(validRegister.email, 'alex@example.com');
 
-    // Invalid email
     assert.throws(() => {
       registerSchema.parse({
         email: 'invalid-email',
@@ -93,50 +91,37 @@ async function runTests() {
     }, 'Should throw validation error for bad email and short password');
   });
 
-  await test('Block Validator Schema with JSON Payload and Schema Version', () => {
+  await test('Generic Block Validator Schema with payload_type & payload_type_version', () => {
     const validBlock = createBlockSchema.parse({
-      name: 'Frontend Milestone',
-      start_date: '2026-09-01T00:00:00.000Z',
-      end_date: '2026-09-15T00:00:00.000Z',
-      type: 'STAGE',
-      status: 'in_progress',
-      schema_version: 2,
+      payload_type: 'GAME_CHARACTER',
+      payload_type_version: 2,
       payload: {
-        budget: 50000,
-        tags: ['UI', 'React'],
-        deliverable: 'https://cdn.uxcribe.com/milestone.pdf',
+        name: 'Shadow Necromancer (Boss)',
+        characterClass: 'Mage',
+        maxHealth: 4800,
+        manaPool: 2000,
+        status: 'active',
       },
     });
 
-    assert.strictEqual(validBlock.name, 'Frontend Milestone');
-    assert.strictEqual(validBlock.schema_version, 2);
-    assert.strictEqual(validBlock.payload.budget, 50000);
+    assert.strictEqual(validBlock.payload_type, 'GAME_CHARACTER');
+    assert.strictEqual(validBlock.payload_type_version, 2);
+    assert.strictEqual(validBlock.payload.name, 'Shadow Necromancer (Boss)');
+    assert.strictEqual(validBlock.payload.maxHealth, 4800);
 
-    // Default schema_version test
-    const defaultVerBlock = createBlockSchema.parse({
-      name: 'Default Version Task',
-      start_date: '2026-09-01T00:00:00.000Z',
-      end_date: '2026-09-10T00:00:00.000Z',
-      type: 'TASK',
+    // Default payload_type & payload_type_version test
+    const defaultBlock = createBlockSchema.parse({
+      payload: { name: 'Default Generic Block' },
     });
-    assert.strictEqual(defaultVerBlock.schema_version, 1, 'Default schema_version should be 1');
+    assert.strictEqual(defaultBlock.payload_type, 'GENERIC');
+    assert.strictEqual(defaultBlock.payload_type_version, 1);
 
-    // Update with schema_version
+    // Update block validation
     const updateBlock = updateBlockSchema.parse({
-      schema_version: 3,
+      payload_type_version: 3,
       payload: { customField: 'migrated' },
     });
-    assert.strictEqual(updateBlock.schema_version, 3);
-
-    // Invalid dates (end_date before start_date)
-    assert.throws(() => {
-      createBlockSchema.parse({
-        name: 'Invalid Date Block',
-        start_date: '2026-09-15T00:00:00.000Z',
-        end_date: '2026-09-01T00:00:00.000Z',
-        type: 'TASK',
-      });
-    }, 'Should throw error when end_date is before start_date');
+    assert.strictEqual(updateBlock.payload_type_version, 3);
   });
 
   // 5. Mailer Service Test
@@ -153,7 +138,7 @@ async function runTests() {
     }
   });
 
-  // 6. Live Database Connectivity (if active)
+  // 6. Live Database Connectivity
   await test('Database Connection Check', async () => {
     try {
       await prisma.$connect();

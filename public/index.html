@@ -72,27 +72,17 @@
       <!-- Filters Bar (Visible for Table and Tree) -->
       <div class="filters-card" id="blocksFiltersCard">
         <div class="filter-group">
-          <label for="filterSearch">🔍 Buscar:</label>
-          <input type="text" id="filterSearch" class="form-control" placeholder="Filtrar por nombre...">
+          <label for="filterSearch">🔍 Buscar en Payload:</label>
+          <input type="text" id="filterSearch" class="form-control" placeholder="Buscar por texto o atributo...">
         </div>
         <div class="filter-group">
-          <label for="filterType">Tipo:</label>
+          <label for="filterType">Tipo de Payload (payload_type):</label>
           <select id="filterType" class="select-control">
             <option value="">Todos los tipos</option>
           </select>
         </div>
         <div class="filter-group">
-          <label for="filterStatus">Estado:</label>
-          <select id="filterStatus" class="select-control">
-            <option value="">Todos los estados</option>
-            <option value="pending">Pending</option>
-            <option value="in_progress">In Progress</option>
-            <option value="completed">Completed</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label for="filterVersion">Versión Esquema:</label>
+          <label for="filterVersion">Versión (payload_type_version):</label>
           <select id="filterVersion" class="select-control">
             <option value="">Todas las versiones</option>
             <option value="1">v1</option>
@@ -119,66 +109,39 @@
   <!-- Modal 1: Create / Edit Block -->
   <dialog id="blockModal">
     <div class="modal-header">
-      <h2 id="blockModalTitle">➕ Bloque</h2>
+      <h2 id="blockModalTitle">➕ Bloque Polimórfico</h2>
       <button class="btn btn-secondary btn-sm" data-close-dialog type="button">✕</button>
     </div>
     <form id="blockForm">
       <input type="hidden" id="blockId">
       <div class="modal-body">
-        <!-- Parent Selector (Relationship Management) -->
+        <!-- Parent Selector (Hierarchy) -->
         <div class="form-group">
-          <label for="blockParentId">🔗 Bloque Padre (Relación Jerárquica):</label>
+          <label for="blockParentId">🔗 Bloque Padre (Jerarquía):</label>
           <select id="blockParentId" class="select-control">
-            <option value="">-- Raíz (Sin Padre / Nivel Proyecto) --</option>
+            <option value="">-- Raíz (Sin Padre / Nivel Superior) --</option>
           </select>
-          <span class="form-help">Selecciona un bloque existente para anidar este elemento como hijo.</span>
-        </div>
-
-        <div class="form-group">
-          <label for="blockName">📌 Título / Nombre del Bloque *:</label>
-          <input type="text" id="blockName" class="form-control" required placeholder="ej. Rediseño de Arquitectura Cloud">
+          <span class="form-help">Selecciona un bloque existente para anidar este elemento o déjalo vacío para nodo raíz.</span>
         </div>
 
         <div class="form-row">
           <div class="form-group">
-            <label for="blockType">🏷️ Tipo de Bloque (STI) *:</label>
+            <label for="blockType">🏷️ Tipo de Payload (payload_type) *:</label>
             <select id="blockType" class="select-control" required></select>
           </div>
           <div class="form-group">
-            <label for="blockStatus">🚦 Estado:</label>
-            <select id="blockStatus" class="select-control">
-              <option value="pending">pending (Pendiente)</option>
-              <option value="in_progress">in_progress (En Progreso)</option>
-              <option value="completed">completed (Completado)</option>
-              <option value="cancelled">cancelled (Cancelado)</option>
-            </select>
+            <label for="blockSchemaVersion">🔢 Versión (payload_type_version) *:</label>
+            <input type="number" id="blockSchemaVersion" class="form-control" value="1" min="1" step="1" required>
           </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="blockStartDate">📅 Fecha Inicio *:</label>
-            <input type="date" id="blockStartDate" class="form-control" required>
-          </div>
-          <div class="form-group">
-            <label for="blockEndDate">📅 Fecha Fin *:</label>
-            <input type="date" id="blockEndDate" class="form-control" required>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="blockSchemaVersion">🔢 Versión del Esquema (schema_version):</label>
-          <input type="number" id="blockSchemaVersion" class="form-control" value="1" min="1" step="1">
-          <span class="form-help">Control de versión del modelo de datos para evolución del payload.</span>
         </div>
 
         <div class="form-group">
           <div style="display: flex; justify-content: space-between; align-items: center;">
-            <label for="blockPayload">📦 Metadatos Dinámicos (JSON Payload):</label>
+            <label for="blockPayload">📦 Atributos del Dominio (JSON Payload) *:</label>
             <button type="button" class="btn btn-secondary btn-sm" onclick="formatPayloadTextarea()">Format JSON</button>
           </div>
-          <textarea id="blockPayload" class="form-control" rows="6" placeholder="{}"></textarea>
-          <span class="form-help">Al actualizar, los campos nuevos se fusionan automáticamente (shallow merge) con los existentes.</span>
+          <textarea id="blockPayload" class="form-control" rows="8" placeholder="{}"></textarea>
+          <span class="form-help">Estructura JSON con todos los atributos específicos (name, status, dates, stats, config, etc.). Al editar, se fusionan los campos.</span>
         </div>
       </div>
       <div class="modal-footer">

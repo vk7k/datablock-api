@@ -5,11 +5,15 @@ class BlockService {
   /**
    * Retrieve a flat list of blocks with optional filters
    */
-  async getBlocks({ type, parent_id, status, schema_version, search } = {}) {
+  async getBlocks({ payload_type, payload_type_version, parent_id, search } = {}) {
     const where = {};
 
-    if (type) {
-      where.type = type;
+    if (payload_type) {
+      where.payload_type = payload_type;
+    }
+
+    if (payload_type_version !== undefined) {
+      where.payload_type_version = Number(payload_type_version);
     }
 
     if (parent_id !== undefined) {
@@ -20,24 +24,20 @@ class BlockService {
       }
     }
 
-    if (status) {
-      where.status = status;
-    }
-
-    if (schema_version !== undefined) {
-      where.schema_version = Number(schema_version);
-    }
-
-    if (search) {
-      where.name = {
-        contains: search,
-      };
-    }
-
-    const blocks = await prisma.block.findMany({
+    let blocks = await prisma.block.findMany({
       where,
-      orderBy: [{ start_date: 'asc' }, { created_at: 'asc' }],
+      orderBy: { created_at: 'asc' },
     });
+
+    // In-memory filter for search if searching inside JSON payload
+    if (search && search.trim()) {
+      const q = search.toLowerCase().trim();
+      blocks = blocks.filter(b => {
+        if (!b.payload) return false;
+        const payloadStr = JSON.stringify(b.payload).toLowerCase();
+        return payloadStr.includes(q);
+      });
+    }
 
     return blocks;
   }
@@ -47,7 +47,7 @@ class BlockService {
    */
   async getBlocksTree() {
     const allBlocks = await prisma.block.findMany({
-      orderBy: [{ start_date: 'asc' }, { created_at: 'asc' }],
+      orderBy: { created_at: 'asc' },
     });
 
     return buildBlockTree(allBlocks);
@@ -63,12 +63,13 @@ class BlockService {
         parent: {
           select: {
             id: true,
-            name: true,
-            type: true,
+            payload_type: true,
+            payload_type_version: true,
+            payload: true,
           },
         },
         children: {
-          orderBy: [{ start_date: 'asc' }, { created_at: 'asc' }],
+          orderBy: { created_at: 'asc' },
         },
       },
     });
@@ -83,9 +84,9 @@ class BlockService {
   }
 
   /**
-   * Create a new polymorphic block
+   * Create a new generic polymorphic block
    */
-  async createBlock({ parent_id, name, start_date, end_date, status = 'pending', type, schema_version = 1, payload = null }) {
+  async createBlock({ parent_id, payload_type = 'GENERIC', payload_type_version = 1, payload = null }) {
     // If parent_id is specified, verify that parent block exists
     if (parent_id) {
       const parentExists = await prisma.block.findUnique({
@@ -102,12 +103,8 @@ class BlockService {
     const newBlock = await prisma.block.create({
       data: {
         parent_id: parent_id || null,
-        name,
-        start_date: new Date(start_date),
-        end_date: new Date(end_date),
-        status: status || 'pending',
-        type,
-        schema_version: schema_version ? Number(schema_version) : 1,
+        payload_type: payload_type || 'GENERIC',
+        payload_type_version: payload_type_version ? Number(payload_type_version) : 1,
         payload: payload || null,
       },
     });
@@ -151,12 +148,8 @@ class BlockService {
 
     const data = {};
 
-    if (updateData.name !== undefined) data.name = updateData.name;
-    if (updateData.start_date !== undefined) data.start_date = new Date(updateData.start_date);
-    if (updateData.end_date !== undefined) data.end_date = new Date(updateData.end_date);
-    if (updateData.status !== undefined) data.status = updateData.status;
-    if (updateData.type !== undefined) data.type = updateData.type;
-    if (updateData.schema_version !== undefined) data.schema_version = Number(updateData.schema_version);
+    if (updateData.payload_type !== undefined) data.payload_type = updateData.payload_type;
+    if (updateData.payload_type_version !== undefined) data.payload_type_version = Number(updateData.payload_type_version);
     if (updateData.parent_id !== undefined) data.parent_id = updateData.parent_id;
 
     // Merge JSON payload if updating payload
