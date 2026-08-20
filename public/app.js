@@ -1,72 +1,357 @@
 /**
  * DataBlock Studio - Single Page Application Client
- * Full CRUD, Hierarchical Tree, Relational Parent Editor & Type Manager
+ * Full CRUD, Hierarchical Tree, Relational Parent Editor, Polymorphic Domain Types & Sample Seeders
  */
 
-// Default Block Types with Predefined Payload Templates
+// Polymorphic Block Types grouped by Domain with Realistic JSON Payload Templates
 const DEFAULT_TYPES = [
+  // 🏢 1. Software Engineering & Agile
   {
+    domain: 'software',
     type: 'PROJECT',
-    label: 'Proyecto (Root)',
+    label: 'Proyecto Software (Root)',
     color: 'badge-type-PROJECT',
     template: {
-      budget: 150000,
-      client: 'Acme Global Corp',
+      budget: 180000,
+      client: 'Acme Cloud Corp',
       manager: 'Sarah Jenkins',
-      priority: 'HIGH',
-      gantt: { color: '#3b82f6', criticalPath: true }
+      methodology: 'SCRUM',
+      repoUrl: 'https://github.com/acme/cloud-engine',
+      gantt: { color: '#38bdf8', criticalPath: true }
     }
   },
   {
-    type: 'STAGE',
-    label: 'Etapa / Fase',
-    color: 'badge-type-STAGE',
+    domain: 'software',
+    type: 'EPIC',
+    label: 'Épica de Negocio',
+    color: 'badge-type-EPIC',
     template: {
-      stageNumber: 1,
-      lead: 'Alex Rivera',
-      deliverablesCount: 4
+      epicKey: 'EPIC-102',
+      businessValue: 'CRITICAL',
+      targetQuarter: 'Q4 2026',
+      leadArchitect: 'David Kim'
     }
   },
   {
+    domain: 'software',
+    type: 'SPRINT',
+    label: 'Sprint Ágil',
+    color: 'badge-type-SPRINT',
+    template: {
+      sprintNumber: 14,
+      velocityTarget: 45,
+      goal: 'Completar autenticación JWT y sincronización de árbol'
+    }
+  },
+  {
+    domain: 'software',
+    type: 'STORY',
+    label: 'Historia de Usuario',
+    color: 'badge-type-STORY',
+    template: {
+      storyPoints: 5,
+      assignee: 'Elena Vance',
+      acceptanceCriteria: ['Validación de esquema', 'Test unitario superado'],
+      priority: 'HIGH'
+    }
+  },
+  {
+    domain: 'software',
     type: 'TASK',
-    label: 'Tarea / Actividad',
+    label: 'Tarea Técnica',
     color: 'badge-type-TASK',
     template: {
-      assignee: 'Elena Rostova',
-      storyPoints: 8,
-      progress: 0,
-      tags: ['Frontend', 'Backend']
+      assignee: 'Dev Team',
+      storyPoints: 3,
+      progress: 50,
+      tags: ['Backend', 'Node.js', 'Prisma']
     }
   },
   {
-    type: 'ASSET',
-    label: 'Recurso / Entregable',
-    color: 'badge-type-ASSET',
+    domain: 'software',
+    type: 'BUG',
+    label: 'Error / Bug Report',
+    color: 'badge-type-BUG',
     template: {
-      fileUrl: 'https://cdn.example.com/spec-v1.pdf',
-      mimeType: 'application/pdf',
-      sizeBytes: 2048000,
-      version: '1.0.0'
+      severity: 'CRITICAL',
+      environment: 'Production',
+      stepsToReproduce: '1. Login con token expirado\n2. Clic en guardar',
+      patchVersion: '1.0.2'
     }
   },
   {
-    type: 'CONTRACT',
-    label: 'Contrato / SLA',
-    color: 'badge-type-CONTRACT',
+    domain: 'software',
+    type: 'RELEASE',
+    label: 'Versión / Release',
+    color: 'badge-type-RELEASE',
     template: {
-      vendorName: 'CloudScale LLC',
-      contractValue: 35000,
-      currency: 'USD',
-      autoRenew: true
+      version: 'v2.0.0',
+      changeLogUrl: 'https://cdn.uxcribe.com/releases/v2.0.0.md',
+      dockerImage: 'uxcribe/datablock-api:2.0.0'
+    }
+  },
+
+  // 🎮 2. Game Development & Design
+  {
+    domain: 'gamedev',
+    type: 'GAME',
+    label: 'Videojuego (Root)',
+    color: 'badge-type-GAME',
+    template: {
+      title: 'Eldoria: Shadows of Eternity',
+      genre: 'Action RPG / Open World',
+      targetEngine: 'Unreal Engine 5.4',
+      targetPlatforms: ['PC (Steam)', 'PlayStation 5', 'Xbox Series X'],
+      gantt: { color: '#f472b6', criticalPath: true }
     }
   },
   {
-    type: 'MILESTONE',
-    label: 'Hito Clave',
+    domain: 'gamedev',
+    type: 'LEVEL',
+    label: 'Nivel / Mundo / Bioma',
+    color: 'badge-type-LEVEL',
+    template: {
+      levelIndex: 1,
+      biome: 'Whispering Catacombs (Dungeon)',
+      targetFPS: 60,
+      lightScenario: 'Dynamic Volumetric Fog + Torches',
+      worldBoundsMeters: { x: 500, y: 500, z: 80 }
+    }
+  },
+  {
+    domain: 'gamedev',
+    type: 'CHARACTER',
+    label: 'Personaje / NPC / Jefe',
+    color: 'badge-type-CHARACTER',
+    template: {
+      characterClass: 'Shadow Necromancer (Boss)',
+      maxHealth: 3500,
+      manaPool: 1200,
+      baseDamage: 110,
+      hitboxScale: 1.25,
+      voiceActor: 'Marcus Vance'
+    }
+  },
+  {
+    domain: 'gamedev',
+    type: 'QUEST',
+    label: 'Misión / Objetivo',
+    color: 'badge-type-QUEST',
+    template: {
+      questType: 'MAIN_STORY',
+      xpReward: 2500,
+      goldReward: 600,
+      requiredLevel: 4,
+      lootTable: ['Ancient Obsidian Dagger', 'Elixir of Mana (x3)']
+    }
+  },
+  {
+    domain: 'gamedev',
+    type: 'ASSET_3D',
+    label: 'Modelo 3D / Mesh / Props',
+    color: 'badge-type-ASSET_3D',
+    template: {
+      polygonCount: 28400,
+      lodLevels: 4,
+      textureResolution: '4K PBR',
+      materials: ['Albedo', 'Normal', 'Roughness', 'Metallic', 'Emission'],
+      fileUrl: 'https://cdn.uxcribe.com/3d/gargoyle_boss_v2.fbx'
+    }
+  },
+  {
+    domain: 'gamedev',
+    type: 'AUDIO_VFX',
+    label: 'Efecto de Audio / VFX',
+    color: 'badge-type-AUDIO_VFX',
+    template: {
+      audioCategory: 'BOSS_BATTLE_THEME',
+      sampleRate: 48000,
+      spatialized3D: true,
+      loopable: true,
+      maxDistanceMeters: 45
+    }
+  },
+
+  // 🗄️ 3. Database Architecture & Cloud Data Engineering
+  {
+    domain: 'database',
+    type: 'DATABASE_CLUSTER',
+    label: 'Cluster de Base de Datos (Root)',
+    color: 'badge-type-DATABASE_CLUSTER',
+    template: {
+      engine: 'MySQL 8.4 Community LTS',
+      topology: 'Multi-AZ Primary-Replica',
+      nodeCount: 3,
+      memoryGB: 64,
+      storageGB: 500,
+      iops: 12000,
+      backupRetentionDays: 30,
+      gantt: { color: '#0ea5e9', criticalPath: true }
+    }
+  },
+  {
+    domain: 'database',
+    type: 'SCHEMA',
+    label: 'Esquema / Base de Datos Lógica',
+    color: 'badge-type-SCHEMA',
+    template: {
+      schemaName: 'production_block_service',
+      defaultCharset: 'utf8mb4',
+      defaultCollation: 'utf8mb4_unicode_ci'
+    }
+  },
+  {
+    domain: 'database',
+    type: 'TABLE',
+    label: 'Tabla Relacional',
+    color: 'badge-type-TABLE',
+    template: {
+      tableName: 'blocks',
+      storageEngine: 'InnoDB',
+      rowFormat: 'DYNAMIC',
+      estimatedRows: 500000,
+      isPartitioned: false
+    }
+  },
+  {
+    domain: 'database',
+    type: 'COLUMN',
+    label: 'Columna / Atributo',
+    color: 'badge-type-COLUMN',
+    template: {
+      columnName: 'payload',
+      dataType: 'JSON',
+      isNullable: true,
+      isPrimaryKey: false,
+      defaultValue: null
+    }
+  },
+  {
+    domain: 'database',
+    type: 'INDEX',
+    label: 'Índice de Rendimiento',
+    color: 'badge-type-INDEX',
+    template: {
+      indexName: 'idx_blocks_parent_id',
+      indexType: 'BTREE',
+      indexedColumns: ['parent_id'],
+      isUnique: false,
+      cardinality: 85000
+    }
+  },
+  {
+    domain: 'database',
+    type: 'MIGRATION',
+    label: 'Script de Migración SQL',
+    color: 'badge-type-MIGRATION',
+    template: {
+      migrationVersion: 'V2026_08_19_001',
+      sqlFileName: 'add_schema_version.sql',
+      checksum: 'sha256:e8b04eb...',
+      executionTimeMs: 42,
+      rollbackSafe: true
+    }
+  },
+
+  // 🎬 4. Film Production & VFX
+  {
+    domain: 'film',
+    type: 'FILM_PROJECT',
+    label: 'Producción de Película / Corto (Root)',
+    color: 'badge-type-FILM_PROJECT',
+    template: {
+      title: 'Neo-Genesis 2099 (Feature Film)',
+      director: 'Denis Vance',
+      aspectRatio: '2.39:1 (Anamorphic)',
+      frameRate: 24,
+      captureResolution: '8K RED RAW',
+      soundFormat: 'Dolby Atmos 7.1.4'
+    }
+  },
+  {
+    domain: 'film',
+    type: 'SCENE',
+    label: 'Escena',
+    color: 'badge-type-SCENE',
+    template: {
+      sceneNumber: 4,
+      location: 'Neo-Tokyo Rooftop',
+      timeOfDay: 'Night / Heavy Rain',
+      lightingSetup: 'Dual Cyan/Magenta Cyberpunk Key + Rim'
+    }
+  },
+  {
+    domain: 'film',
+    type: 'SHOT',
+    label: 'Toma de Cámara',
+    color: 'badge-type-SHOT',
+    template: {
+      shotCode: 'SC04_SH02',
+      lens: '50mm Anamorphic T1.8',
+      cameraMovement: 'Steadicam Orbit + Tilt Up',
+      takeCount: 4,
+      status: 'APPROVED_BY_DIRECTOR'
+    }
+  },
+  {
+    domain: 'film',
+    type: 'RENDER_PASS',
+    label: 'Pase de Render VFX',
     color: 'badge-type-CUSTOM',
     template: {
-      kpi: 'Beta Release v1.0',
-      stakeholderApproval: true
+      renderEngine: 'Octane / Unreal 5.4',
+      samplesPerPixel: 2048,
+      layers: ['Beauty', 'Z-Depth', 'Cryptomatte', 'Ambient Occlusion', 'Emissive']
+    }
+  },
+
+  // 📚 5. EdTech & Learning Management
+  {
+    domain: 'edtech',
+    type: 'COURSE',
+    label: 'Curso Educativo (Root)',
+    color: 'badge-type-COURSE',
+    template: {
+      courseCode: 'CS-401',
+      title: 'Sistemas Distribuidos y Bases de Datos Polimórficas',
+      professor: 'Dr. Alan Turing',
+      difficulty: 'AVANZADO',
+      totalHours: 40,
+      certificateEligible: true
+    }
+  },
+  {
+    domain: 'edtech',
+    type: 'MODULE',
+    label: 'Módulo de Aprendizaje',
+    color: 'badge-type-MODULE',
+    template: {
+      moduleIndex: 2,
+      title: 'Single Table Inheritance y Modelos JSON en MySQL',
+      learningObjectives: ['Comprender relaciones recursivas', 'Optimizar consultas con índices']
+    }
+  },
+  {
+    domain: 'edtech',
+    type: 'LESSON',
+    label: 'Lección Interactiva',
+    color: 'badge-type-LESSON',
+    template: {
+      lessonType: 'VIDEO_AND_PRACTICE',
+      videoDurationMin: 28,
+      interactiveSandboxUrl: 'https://lab.uxcribe.com/db-sti'
+    }
+  },
+  {
+    domain: 'edtech',
+    type: 'QUIZ',
+    label: 'Evaluación / Examen',
+    color: 'badge-type-QUIZ',
+    template: {
+      totalQuestions: 10,
+      passingScorePercent: 80,
+      timeLimitMinutes: 20,
+      maxAttempts: 3
     }
   }
 ];
@@ -202,7 +487,7 @@ async function tryAutoLogin() {
     });
     if (res.success && res.data) {
       setAuthSession(res.data.user, res.data.token);
-      showToast('Sesión iniciada automáticamente como Administrador (Seed)', 'success');
+      showToast('Sesión iniciada como Administrador (Seed)', 'success');
       return true;
     }
   } catch (err) {
@@ -297,9 +582,12 @@ function renderTreeView() {
     container.innerHTML = `
       <div class="empty-state">
         <div class="empty-state-icon">🌳</div>
-        <h3>No hay bloques en la jerarquía</h3>
-        <p>Crea tu primer bloque raíz (Proyecto) para comenzar.</p>
-        <button class="btn btn-primary" style="margin-top: 1rem;" onclick="openCreateBlockModal(null)">+ Crear Bloque Raíz</button>
+        <h3>No hay bloques en la base de datos</h3>
+        <p>Crea un bloque raíz o carga una de las plantillas temáticas de ejemplo (Juegos, Bases de Datos, etc.).</p>
+        <div style="display: flex; gap: 0.75rem; justify-content: center; margin-top: 1.25rem; flex-wrap: wrap;">
+          <button class="btn btn-primary" onclick="openCreateBlockModal(null)">+ Crear Bloque Raíz</button>
+          <button class="btn btn-secondary" onclick="openSampleTemplatesModal()">🌱 Cargar Plantilla de Ejemplo</button>
+        </div>
       </div>
     `;
     return;
@@ -409,7 +697,6 @@ function toggleExpandAllTree() {
   if (state.collapsedNodeIds.size > 0) {
     state.collapsedNodeIds.clear();
   } else {
-    // Collect all parent node ids
     const collectIds = (nodes) => {
       nodes.forEach(n => {
         if (n.children && n.children.length > 0) {
@@ -508,10 +795,13 @@ function renderTypesView() {
   let html = `
     <div class="action-bar" style="margin-bottom: 1rem;">
       <div>
-        <h2>🎨 Tipos de Bloques y Plantillas de Payload</h2>
-        <p>Define tipos estándar y plantillas JSON precargadas para acelerar la creación de datos.</p>
+        <h2>🎨 Catálogo de Tipos Polimórficos y Plantillas</h2>
+        <p>Los bloques comparten una única tabla pero se adaptan a cualquier dominio con metadatos JSON especializados.</p>
       </div>
-      <button class="btn btn-primary" onclick="openCreateTypeModal()">+ Crear Nuevo Tipo</button>
+      <div style="display: flex; gap: 0.5rem;">
+        <button class="btn btn-secondary" onclick="openSampleTemplatesModal()">🌱 Cargar Árbol de Ejemplo</button>
+        <button class="btn btn-primary" onclick="openCreateTypeModal()">+ Crear Nuevo Tipo</button>
+      </div>
     </div>
     <div class="types-grid">
   `;
@@ -524,7 +814,7 @@ function renderTypesView() {
           <span class="badge ${t.color || 'badge-type-CUSTOM'}">${t.type}</span>
           ${isCustom ? `
             <button class="btn btn-danger btn-sm" onclick="deleteCustomType('${t.type}')" title="Eliminar tipo personalizado">🗑️</button>
-          ` : '<span style="font-size: 0.7rem; color: var(--text-muted);">Estándar</span>'}
+          ` : '<span style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">' + (t.domain || 'Estándar') + '</span>'}
         </div>
         <div><strong>${escapeHtml(t.label || t.type)}</strong></div>
         <div class="type-card-template">
@@ -550,6 +840,385 @@ function deleteCustomType(typeName) {
 }
 
 // ==========================================
+// 1-Click Sample Domain Tree Seeders
+// ==========================================
+const DOMAIN_SAMPLES = {
+  gamedev: {
+    name: '🎮 Videojuego: Eldoria (Game Design)',
+    description: 'Árbol completo de diseño de videojuego: Título -> Niveles/Biomas -> Jefes/NPCs, Misiones con loot y Modelos 3D PBR.',
+    create: async () => {
+      const now = new Date();
+      const addDays = (d, days) => new Date(d.getTime() + days * 24 * 60 * 60 * 1000).toISOString();
+
+      // 1. Root Game
+      const root = await apiRequest('/api/blocks', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: 'Eldoria: Shadows of Eternity',
+          type: 'GAME',
+          status: 'in_progress',
+          schema_version: 1,
+          start_date: now.toISOString(),
+          end_date: addDays(now, 180),
+          payload: {
+            genre: 'Action RPG / Open World',
+            targetEngine: 'Unreal Engine 5.4',
+            targetPlatforms: ['PC (Steam)', 'PlayStation 5', 'Xbox Series X'],
+            leadDesigner: 'Sarah Jenkins',
+            gantt: { color: '#f472b6', criticalPath: true }
+          }
+        })
+      });
+
+      const gameId = root.data.id;
+
+      // 2. Level 1 (Act I)
+      const level1 = await apiRequest('/api/blocks', {
+        method: 'POST',
+        body: JSON.stringify({
+          parent_id: gameId,
+          name: 'Act I: Whispering Catacombs',
+          type: 'LEVEL',
+          status: 'in_progress',
+          schema_version: 1,
+          start_date: now.toISOString(),
+          end_date: addDays(now, 45),
+          payload: {
+            levelIndex: 1,
+            biome: 'Underground Catacombs & Crypts',
+            targetFPS: 60,
+            lightScenario: 'Dynamic Torches + Volumetric Fog'
+          }
+        })
+      });
+      const level1Id = level1.data.id;
+
+      // 2.1 Boss under Level 1
+      await apiRequest('/api/blocks', {
+        method: 'POST',
+        body: JSON.stringify({
+          parent_id: level1Id,
+          name: 'Shadow Necromancer (Dungeon Boss)',
+          type: 'CHARACTER',
+          status: 'in_progress',
+          schema_version: 2,
+          start_date: addDays(now, 5),
+          end_date: addDays(now, 25),
+          payload: {
+            characterClass: 'Boss / Spellcaster',
+            maxHealth: 4800,
+            manaPool: 2000,
+            baseDamage: 140,
+            phaseCount: 3,
+            voiceActor: 'Elena Vance'
+          }
+        })
+      });
+
+      // 2.2 Quest under Level 1
+      await apiRequest('/api/blocks', {
+        method: 'POST',
+        body: JSON.stringify({
+          parent_id: level1Id,
+          name: 'Quest: Purify the Sacred Altar',
+          type: 'QUEST',
+          status: 'completed',
+          schema_version: 1,
+          start_date: addDays(now, 2),
+          end_date: addDays(now, 15),
+          payload: {
+            questType: 'MAIN_STORY',
+            xpReward: 3000,
+            goldReward: 750,
+            requiredLevel: 4,
+            lootTable: ['Obsidian Relic', 'Elixir of Mana x5']
+          }
+        })
+      });
+
+      // 2.3 3D Asset under Level 1
+      await apiRequest('/api/blocks', {
+        method: 'POST',
+        body: JSON.stringify({
+          parent_id: level1Id,
+          name: 'Gargoyle Boss 3D Mesh & Textures',
+          type: 'ASSET_3D',
+          status: 'completed',
+          schema_version: 1,
+          start_date: now.toISOString(),
+          end_date: addDays(now, 10),
+          payload: {
+            polygonCount: 32500,
+            lodLevels: 4,
+            textureResolution: '4K PBR',
+            fileUrl: 'https://cdn.uxcribe.com/3d/gargoyle_boss.fbx'
+          }
+        })
+      });
+
+      // 3. Level 2 (Act II)
+      await apiRequest('/api/blocks', {
+        method: 'POST',
+        body: JSON.stringify({
+          parent_id: gameId,
+          name: 'Act II: Sunken Citadel of Titans',
+          type: 'LEVEL',
+          status: 'pending',
+          schema_version: 1,
+          start_date: addDays(now, 46),
+          end_date: addDays(now, 100),
+          payload: {
+            levelIndex: 2,
+            biome: 'Underwater Submerged City',
+            targetFPS: 60,
+            waterPhysicsEnabled: true
+          }
+        })
+      });
+    }
+  },
+
+  database: {
+    name: '🗄️ Arquitectura Cloud: Aurora MySQL Cluster',
+    description: 'Modelado de infraestructura y esquema de base de datos: Cluster -> Esquema -> Tablas -> Columnas, Índices y Migraciones.',
+    create: async () => {
+      const now = new Date();
+      const addDays = (d, days) => new Date(d.getTime() + days * 24 * 60 * 60 * 1000).toISOString();
+
+      // 1. Root Cluster
+      const root = await apiRequest('/api/blocks', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: 'Aurora-Prod-Primary-Cluster',
+          type: 'DATABASE_CLUSTER',
+          status: 'in_progress',
+          schema_version: 1,
+          start_date: now.toISOString(),
+          end_date: addDays(now, 365),
+          payload: {
+            engine: 'MySQL 8.4 LTS Enterprise',
+            topology: 'Multi-AZ Primary with 2 Read Replicas',
+            memoryGB: 64,
+            storageGB: 1000,
+            iops: 20000,
+            gantt: { color: '#0ea5e9', criticalPath: true }
+          }
+        })
+      });
+      const clusterId = root.data.id;
+
+      // 2. Schema
+      const schema = await apiRequest('/api/blocks', {
+        method: 'POST',
+        body: JSON.stringify({
+          parent_id: clusterId,
+          name: 'block_system_production',
+          type: 'SCHEMA',
+          status: 'completed',
+          schema_version: 1,
+          start_date: now.toISOString(),
+          end_date: addDays(now, 30),
+          payload: {
+            defaultCharset: 'utf8mb4',
+            defaultCollation: 'utf8mb4_unicode_ci',
+            enforceForeignKeys: true
+          }
+        })
+      });
+      const schemaId = schema.data.id;
+
+      // 2.1 Table 'blocks'
+      const tableBlocks = await apiRequest('/api/blocks', {
+        method: 'POST',
+        body: JSON.stringify({
+          parent_id: schemaId,
+          name: 'table: blocks (STI Polymorphic)',
+          type: 'TABLE',
+          status: 'completed',
+          schema_version: 1,
+          start_date: now.toISOString(),
+          end_date: addDays(now, 15),
+          payload: {
+            storageEngine: 'InnoDB',
+            rowFormat: 'DYNAMIC',
+            estimatedRows: 750000,
+            cascadeDeletesEnabled: true
+          }
+        })
+      });
+      const tableBlocksId = tableBlocks.data.id;
+
+      // 2.1.1 Column 'payload'
+      await apiRequest('/api/blocks', {
+        method: 'POST',
+        body: JSON.stringify({
+          parent_id: tableBlocksId,
+          name: 'column: payload (JSON dynamic metadata)',
+          type: 'COLUMN',
+          status: 'completed',
+          schema_version: 1,
+          start_date: now.toISOString(),
+          end_date: addDays(now, 10),
+          payload: {
+            dataType: 'JSON',
+            isNullable: true,
+            maxSizeBytes: 10485760,
+            virtualGeneratedColumns: ['gantt_color', 'assignee_email']
+          }
+        })
+      });
+
+      // 2.1.2 Index
+      await apiRequest('/api/blocks', {
+        method: 'POST',
+        body: JSON.stringify({
+          parent_id: tableBlocksId,
+          name: 'index: idx_blocks_parent_id_type',
+          type: 'INDEX',
+          status: 'completed',
+          schema_version: 1,
+          start_date: now.toISOString(),
+          end_date: addDays(now, 12),
+          payload: {
+            indexType: 'BTREE',
+            indexedColumns: ['parent_id', 'type'],
+            isUnique: false,
+            cardinality: 120000
+          }
+        })
+      });
+
+      // 2.2 Migration
+      await apiRequest('/api/blocks', {
+        method: 'POST',
+        body: JSON.stringify({
+          parent_id: schemaId,
+          name: 'migration: V2026_08_19__Add_Schema_Version.sql',
+          type: 'MIGRATION',
+          status: 'completed',
+          schema_version: 1,
+          start_date: now.toISOString(),
+          end_date: addDays(now, 5),
+          payload: {
+            sqlChecksum: 'sha256:45d8335...',
+            executionTimeMs: 38,
+            rollbackSafe: true
+          }
+        })
+      });
+    }
+  },
+
+  film: {
+    name: '🎬 Producción de Cine: Neo-Genesis 2099',
+    description: 'Producción audiovisual y VFX: Proyecto de Película -> Escenas -> Tomas de cámara y Pases de renderizado 8K.',
+    create: async () => {
+      const now = new Date();
+      const addDays = (d, days) => new Date(d.getTime() + days * 24 * 60 * 60 * 1000).toISOString();
+
+      const root = await apiRequest('/api/blocks', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: 'Neo-Genesis 2099 (Feature Film)',
+          type: 'FILM_PROJECT',
+          status: 'in_progress',
+          schema_version: 1,
+          start_date: now.toISOString(),
+          end_date: addDays(now, 120),
+          payload: {
+            director: 'Denis Vance',
+            aspectRatio: '2.39:1 Anamorphic',
+            frameRate: 24,
+            captureResolution: '8K RED RAW',
+            soundFormat: 'Dolby Atmos 7.1.4'
+          }
+        })
+      });
+      const filmId = root.data.id;
+
+      const scene = await apiRequest('/api/blocks', {
+        method: 'POST',
+        body: JSON.stringify({
+          parent_id: filmId,
+          name: 'Scene 12: The Cyber-Alley Ambush',
+          type: 'SCENE',
+          status: 'in_progress',
+          schema_version: 1,
+          start_date: now.toISOString(),
+          end_date: addDays(now, 20),
+          payload: {
+            location: 'Sector 7 Neon Slums',
+            timeOfDay: 'Night (Heavy Rain)',
+            lightingSetup: 'Dual Cyan Key + Backlight Rim'
+          }
+        })
+      });
+      const sceneId = scene.data.id;
+
+      await apiRequest('/api/blocks', {
+        method: 'POST',
+        body: JSON.stringify({
+          parent_id: sceneId,
+          name: 'Shot 12A: Close-Up Cybernetic Eye',
+          type: 'SHOT',
+          status: 'completed',
+          schema_version: 1,
+          start_date: now.toISOString(),
+          end_date: addDays(now, 5),
+          payload: {
+            shotCode: 'SC12_SH01',
+            lens: '85mm Anamorphic T1.8',
+            cameraRig: 'Technocrane + Freefly Movi',
+            approvedTakes: [3, 7]
+          }
+        })
+      });
+
+      await apiRequest('/api/blocks', {
+        method: 'POST',
+        body: JSON.stringify({
+          parent_id: sceneId,
+          name: 'Volumetric Rain & Hologram VFX Pass',
+          type: 'RENDER_PASS',
+          status: 'in_progress',
+          schema_version: 1,
+          start_date: addDays(now, 6),
+          end_date: addDays(now, 18),
+          payload: {
+            renderEngine: 'Unreal Engine 5.4 / Octane',
+            samplesPerPixel: 2048,
+            denoiser: 'NVIDIA OptiX',
+            frameRange: '001 - 340'
+          }
+        })
+      });
+    }
+  }
+};
+
+function openSampleTemplatesModal() {
+  const dialog = document.getElementById('samplesModal');
+  dialog.showModal();
+}
+
+async function loadSampleTree(domainKey) {
+  const sample = DOMAIN_SAMPLES[domainKey];
+  if (!sample) return;
+
+  const dialog = document.getElementById('samplesModal');
+  dialog.close();
+  showToast(`Generando jerarquía polimórfica "${sample.name}"...`, 'info');
+
+  try {
+    await sample.create();
+    showToast(`¡Jerarquía "${sample.name}" creada con éxito!`, 'success');
+    await loadData();
+  } catch (err) {
+    showToast('Error al generar plantilla: ' + err.message, 'error');
+  }
+}
+
+// ==========================================
 // Modals & Form Dialogs
 // ==========================================
 function populateParentSelect(selectedParentId = null, currentBlockId = null) {
@@ -558,10 +1227,8 @@ function populateParentSelect(selectedParentId = null, currentBlockId = null) {
 
   parentSelect.innerHTML = '<option value="">-- Raíz (Sin Padre) --</option>';
 
-  // Build flattened options with indentation
   const addOptions = (nodes, prefix = '') => {
     nodes.forEach(node => {
-      // Prevent selecting self as parent
       if (node.id === currentBlockId) return;
 
       const opt = document.createElement('option');
@@ -587,12 +1254,32 @@ function populateTypeSelects() {
   if (typeSelect) {
     const currentVal = typeSelect.value;
     typeSelect.innerHTML = '';
-    allTypes.forEach(t => {
-      const opt = document.createElement('option');
-      opt.value = t.type;
-      opt.textContent = `${t.type} - ${t.label || ''}`;
-      typeSelect.appendChild(opt);
+    
+    // Group by Domain
+    const domains = {
+      software: '🚀 Software & Proyectos Ágiles',
+      gamedev: '🎮 Desarrollo de Videojuegos',
+      database: '🗄️ Arquitectura Cloud & DB',
+      film: '🎬 Cine & Producción VFX',
+      edtech: '📚 Educación & LMS',
+      custom: '✨ Personalizados'
+    };
+
+    Object.keys(domains).forEach(domKey => {
+      const matchingTypes = allTypes.filter(t => (t.domain || (state.customTypes.some(ct => ct.type === t.type) ? 'custom' : 'software')) === domKey);
+      if (matchingTypes.length > 0) {
+        const group = document.createElement('optgroup');
+        group.label = domains[domKey];
+        matchingTypes.forEach(t => {
+          const opt = document.createElement('option');
+          opt.value = t.type;
+          opt.textContent = `${t.type} - ${t.label || ''}`;
+          group.appendChild(opt);
+        });
+        typeSelect.appendChild(group);
+      }
     });
+
     if (currentVal) typeSelect.value = currentVal;
   }
 
@@ -735,7 +1422,7 @@ async function handleBlockFormSubmit(e) {
   const method = isEdit ? 'PUT' : 'POST';
 
   try {
-    const res = await apiRequest(endpoint, {
+    await apiRequest(endpoint, {
       method,
       body: JSON.stringify(payloadBody)
     });
@@ -799,7 +1486,6 @@ function handleCreateTypeSubmit(e) {
     }
   }
 
-  // Save custom type
   const exists = getAllTypes().some(t => t.type === typeName);
   if (exists) {
     showToast(`El tipo "${typeName}" ya existe`, 'error');
@@ -807,6 +1493,7 @@ function handleCreateTypeSubmit(e) {
   }
 
   state.customTypes.push({
+    domain: 'custom',
     type: typeName,
     label,
     color: 'badge-type-CUSTOM',
