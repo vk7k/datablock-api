@@ -394,10 +394,9 @@ All responses are wrapped in a standard response envelope:
 
 ---
 
-## 📑 Documentación Interactiva & Esquema OpenAPI 3.0 (Swagger)
+## 📑 Documentación Interactiva & Especificación de API
 
-Este proyecto implementa el estándar global **OpenAPI 3.0.3**, ideal para que otros agentes de IA, clientes frontend, Postman o generadores de código consuman la API con total precisión:
-
+- 📘 **Especificación Técnica Completa para Desarrolladores**: [`DATABLOCK_API_SPECIFICATION.md`](DATABLOCK_API_SPECIFICATION.md) (Guía integral con arquitectura de nodos polimórficos, contratos de datos, catálogo de esquemas y ejemplos en TypeScript, Python y cURL).
 - 🌐 **Swagger UI Interactivo**: [`http://localhost:3000/api/docs`](http://localhost:3000/api/docs) (para probar todos los endpoints y autenticación directamente en el navegador).
 - 📄 **Esquema OpenAPI JSON**: [`openapi.json`](openapi.json) o vía endpoint en `/api/docs/openapi.json`.
 - 📝 **Esquema OpenAPI YAML**: [`openapi.yaml`](openapi.yaml) o vía endpoint en `/openapi.yaml`.
