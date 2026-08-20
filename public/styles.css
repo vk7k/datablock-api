@@ -520,12 +520,14 @@ textarea.form-control {
 .payload-preview {
   background: var(--bg-primary);
   border-top: 1px solid var(--border-color);
-  padding: 0.4rem 0.75rem;
+  padding: 0.6rem 0.85rem;
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.74rem;
   color: #38bdf8;
-  max-height: 140px;
+  max-height: 280px;
   overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
   border-radius: 0 0 var(--radius-sm) var(--radius-sm);
 }
 
@@ -567,22 +569,27 @@ textarea.form-control {
   background: rgba(51, 65, 85, 0.25);
 }
 
-/* Type / Schemas Grid */
+/* Type / Schemas Grid - Expanded for High Visibility */
 .types-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 1rem;
 }
 
 .type-card {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
-  padding: 0.75rem;
+  padding: 0.85rem;
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
+  gap: 0.55rem;
   box-shadow: var(--shadow-card);
+  transition: border-color var(--transition-fast);
+}
+
+.type-card:hover {
+  border-color: rgba(56, 189, 248, 0.35);
 }
 
 .type-card-header {
@@ -595,12 +602,21 @@ textarea.form-control {
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
-  padding: 0.4rem;
+  padding: 0.65rem;
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.74rem;
   color: var(--accent-blue);
-  max-height: 90px;
+  min-height: 180px;
+  max-height: 320px;
   overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.45;
+}
+
+.type-card-template pre {
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 /* Native Dialog Modals - Sleek & Compact */
@@ -1009,4 +1025,23 @@ dialog::backdrop {
   .db-layout {
     grid-template-columns: 1fr;
   }
+}
+
+/* Sleek Slim Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(11, 15, 25, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(51, 65, 85, 0.6);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.5);
 }
